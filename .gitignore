@@ -1,5 +1,6 @@
 /.idea/
 /vendor/
+/web/
 /web/system/
 /web/uploads/
 /app/cache/
