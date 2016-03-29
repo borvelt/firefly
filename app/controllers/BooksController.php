@@ -28,7 +28,7 @@ class BooksController
     private static function generateResponse ($slim, $response) {
 
         if(isset($response['filename'])) {
-            $enc = encrypt ($slim->request->getIp() . "#" . basename($response['filename']) . "#" . time());
+            $enc = encrypt ($slim->request->getIp() . "#" . basename($response['filename']) . "#" . time() . "#" . $response['url']);
             $slim->responseBody = ['download_link'=>$slim->urlFor("downloadBookByUID", ['uid'=>$enc])];
         } else {
             $slim->responseBody = $response;

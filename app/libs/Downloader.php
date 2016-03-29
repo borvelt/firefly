@@ -230,7 +230,7 @@ class Downloader {
             system("zip --junk-paths -P http://motarjeminiran.com $filename $pdf");
             ob_clean();
         }
-        return ['filename'=>$filename];
+        return ['filename' => $filename, 'url' => $this->url];
     }
 
     private function margeit ($file) {
