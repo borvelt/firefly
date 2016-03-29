@@ -4,10 +4,13 @@ class JsonView extends \Slim\View
   public function render($data = null, $status = null, $message = null)
   {
       $slim = \Slim\Slim::getInstance();
-      $slim->responseBody = (array) $slim->responseBody;
-      if(is_array($data))
-      {
-        $slim->responseBody = array_merge((array)$slim->responseBody, $data);
+      if (isJson($slim->responseBody)) {
+          $slim->responseBody = json_decode($slim->responseBody,true);
+      } else {
+          $slim->responseBody = (array) $slim->responseBody;
+      }
+      if(is_array($data)) {
+          $slim->responseBody = array_merge((array)$slim->responseBody, $data);
       }
       $this->appendData($slim->responseBody);
       $all_data = $this->data->all();

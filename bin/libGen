@@ -1,0 +1,123 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.DIRECTORY_SEPARATOR.'../vendor/autoload.php';
+
+$last_book_id = 0;
+
+try {
+    $client = new GuzzleHttp\Client();
+
+    //Get last book id
+    $first_strike = 0;
+    $date_strike = 0;
+    do {
+        $url = "http://libgen.io/json.php?fields=%2A&mode=last";
+        $url .= "&timefirst=". date('Y-m-d', time() - 86400*$date_strike);
+        $url .= "&limit1=" . $first_strike*1000 . "&limit2=1000";
+        $res = $client->request("GET", $url);
+        $received_data = json_decode($res->getBody(),true);
+        if (count($received_data) < 1000 && count($received_data) != 0) {
+            $last_received_data_item = end($received_data);
+            $last_book_id = $last_received_data_item["ID"];
+            break;
+        }
+        $first_strike++;
+        if (count($received_data) == 0) {
+            $date_strike++;
+            $first_strike = 0;
+        }
+    } while (true);
+
+    //Download Books
+    $limiter = 100;
+    $bulk = intval($last_book_id/$limiter);
+    $remain = $last_book_id % $limiter;
+    if($remain > 0) {
+        $bulk++;
+    }
+    $bulk_counter = 0;
+    $to = $limiter;
+    while ($bulk_counter <= $bulk) {
+        $url = "http://libgen.io/json.php?fields=%2A&ids=";
+        $from = $bulk_counter * $limiter;
+        for ($id = $from + 1; $id <= $to; $id++) {
+            $append = $id . ",";
+            if ($id == $to) {
+                $append = $id;
+            }
+            $url .= $append;
+        }
+        $res = $client->request('GET', $url);
+        $books = json_decode($res->getBody(),true);
+        foreach ($books as $book_info) {
+            if ($old_book = Book::whereBookId($book_info["ID"])->first()) {
+                if(strtotime($old_book->timeLastModified) < strtotime($book_info["TimeLastModified"])) {
+                    myMassAssignment($old_book, $book_info);
+                    $old_book->save();
+                    sleep(5);
+                }
+            } else {
+                $new_book = new Book();
+                myMassAssignment($new_book, $book_info);
+                $new_book->save();
+                sleep(5);
+            }
+        }
+        $bulk_counter++;
+        $to = ($bulk_counter + 1) * $limiter;
+    }
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+
+function myMassAssignment (&$new_book, $book_info) {
+    $new_book->book_id = $book_info['ID'];
+    $new_book->title = $book_info['Title'];
+    $new_book->volumeInfo = $book_info['VolumeInfo'];
+    $new_book->series = $book_info['Series'];
+    $new_book->periodical = $book_info['Periodical'];
+    $new_book->author = $book_info['Author'];
+    $new_book->year = $book_info['Year'];
+    $new_book->edition = $book_info['Edition'];
+    $new_book->publisher = $book_info['Publisher'];
+    $new_book->city = $book_info['City'];
+    $new_book->pages = $book_info['Pages'];
+    $new_book->pagesInFile = $book_info['PagesInFile'];
+    $new_book->language = $book_info['Language'];
+    $new_book->topic = $book_info['Topic'];
+    $new_book->library = $book_info['Library'];
+    $new_book->issue = $book_info['Issue'];
+    $new_book->identifier = $book_info['Identifier'];
+    $new_book->ISSN = $book_info['ISSN'];
+    $new_book->ASIN = $book_info['ASIN'];
+    $new_book->UDC = $book_info['UDC'];
+    $new_book->LBC = $book_info['LBC'];
+    $new_book->DDC = $book_info['DDC'];
+    $new_book->LCC = $book_info['LCC'];
+    $new_book->doi = $book_info['Doi'];
+    $new_book->googleBookId = $book_info['Googlebookid'];
+    $new_book->openLibraryID = $book_info['OpenLibraryID'];
+    $new_book->commentary = $book_info['Commentary'];
+    $new_book->DPI = $book_info['DPI'];
+    $new_book->color = $book_info['Color'];
+    $new_book->cleaned = $book_info['Cleaned'];
+    $new_book->orientation = $book_info['Orientation'];
+    $new_book->paginated = $book_info['Paginated'];
+    $new_book->scanned = $book_info['Scanned'];
+    $new_book->bookmarked = $book_info['Bookmarked'];
+    $new_book->searchable = $book_info['Searchable'];
+    $new_book->filesize = $book_info['Filesize'];
+    $new_book->extension = $book_info['Extension'];
+    $new_book->MD5 = $book_info['MD5'];
+    $new_book->generic = $book_info['Generic'];
+    $new_book->filename = $book_info['Filename'];
+    $new_book->visible = $book_info['Visible'];
+    $new_book->locator = $book_info['Locator'];
+    $new_book->local = $book_info['Local'];
+    $new_book->timeAdded = $book_info['TimeAdded'];
+    $new_book->timeLastModified = $book_info['TimeLastModified'];
+    $new_book->coverURL = $book_info['Coverurl'];
+    $new_book->tags = $book_info['Tags'];
+    $new_book->identifierWODash = $book_info['IdentifierWODash'];
+}

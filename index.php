@@ -36,15 +36,20 @@ $slim->group('/books', 'Auth::check', function () use ($slim)
 {
     $slim->GET('/by-link', function () use ($slim)
     {
-        Controller::call('BooksByLinksController', 'getBookByLink');
+        Controller::call('BooksController', 'getBookByLink');
         $slim->render([]);
     })->name('getBookByLink');
 
     $slim->POST('/by-link', function () use ($slim)
     {
-        Controller::call('BooksByLinksController', 'getBookByLinkNeedCaptcha');
+        Controller::call('BooksController', 'getBookByLinkNeedCaptcha');
         $slim->render([]);
     })->name('getBookByLinkNeedCaptcha');
+
+    $slim->POST ('/search', function () use ($slim) {
+        Controller::call('BooksController', 'searchBook');
+        $slim->render([]);
+    })->name('searchBook');
 });
 
 $slim->run();
