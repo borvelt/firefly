@@ -57,11 +57,11 @@ class Downloader {
         } else {
             if(strpos($aa = $this->checklib($url),'http://libgen.io/') !== false) {
                 $libhtml = @HtmlDomParser::file_get_html($aa);
-                $dlib	 = $libhtml->find('a[title=Libgen]',0)->href;
+                $dlib	 = @$libhtml->find('a[title=Libgen]',0)->href;
                 $dlib	 = str_replace('../','',$dlib);
                 $dlib	 = 'http://libgen.io/'.$dlib;
                 $dlibhtm = @HtmlDomParser::file_get_html($dlib);
-                $dliblin = $dlibhtm->find('a',0)->href;
+                $dliblin = @$dlibhtm->find('a',0)->href;
                 $dliblin = 'http://libgen.io'.$dliblin;
                 $pdflib	 = $this->checklib($dliblin);
                 $this->download('http://libgen.io/'.$pdflib);
@@ -69,8 +69,8 @@ class Downloader {
                 $urlcheck = @$html->find('form',0)->action;
                 if (strpos($urlcheck,'solve') !== false) {
                     $loadcap =  HtmlDomParser::str_get_html($html);
-                    $captchimg = $loadcap->find('img',0)->src;
-                    $captchid = $loadcap->find('input[name=captchaId]',0)->value;
+                    $captchimg = @$loadcap->find('img',0)->src;
+                    $captchid = @$loadcap->find('input[name=captchaId]',0)->value;
                     $geturl = $this->url;
                     return [
                         "type" => "badcaptch",
@@ -145,11 +145,11 @@ class Downloader {
         $context  = stream_context_create($opts);
         $file = file_get_contents('http://sci-hub.io/solve', false, $context);
         $html = @HtmlDomParser::str_get_html($file);
-        if (!$html->find('input[name=captchaId]',0)) {
-            if($html->find('div[id=proxySelector]',0) ) {
+        if (@!$html->find('input[name=captchaId]',0)) {
+            if(@$html->find('div[id=proxySelector]',0) ) {
                 return "try_again";
             } else {
-                foreach ($html->find('iframe') as $element1) {
+                foreach (@$html->find('iframe') as $element1) {
                     $orgi = $element1->src;
                     if (isset($orgi) && pathinfo($orgi, PATHINFO_EXTENSION) == "pdf") {
                         return $this->download($orgi);

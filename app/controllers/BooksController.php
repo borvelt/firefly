@@ -11,7 +11,7 @@ class BooksController
 
         $response = $dl->captchaloader();
 
-        self::generateResponse($slim, $response);
+        list($slim->responseBody, $slim->responseCode) = self::generateResponse($slim, $response);
 
     }
 
@@ -21,7 +21,7 @@ class BooksController
 
         $response = $dl->captchpasser($slim->request->post('fistcaptch'),$slim->request->post());
 
-        self::generateResponse($slim, $response);
+        list($slim->responseBody, $slim->responseCode) = self::generateResponse($slim, $response);
 
     }
 
@@ -29,10 +29,12 @@ class BooksController
 
         if(isset($response['filename'])) {
             $enc = encrypt ($slim->request->getIp() . "#" . basename($response['filename']) . "#" . time() . "#" . $response['url']);
-            $slim->responseBody = ['download_link'=>$slim->urlFor("downloadBookByUID", ['uid'=>$enc])];
+            // $slim->responseBody = ['download_link'=>$slim->urlFor("downloadBookByUID", ['uid'=>$enc])];
+            return [['download_link'=>$slim->urlFor("downloadBookByUID", ['uid'=>$enc])], 200];
         } else {
-            $slim->responseBody = $response;
-            $slim->responseCode = 202;
+            // $slim->responseBody = $response;
+            // $slim->responseCode = 202;
+            return [$response, 202];
         }
 
     }
@@ -41,7 +43,7 @@ class BooksController
 
         $posted_data = $slim->request->post();
         $slim->responseBody = $posted_data;
-        $books = Book::where('title','like','%'.$posted_data['book_name'].'%')->get();
+        $books = Book::where('title','like','%'.$posted_data['book_name'].'%')->take($posted_data['limitation'])->get()->toArray();
         $slim->responseBody = $books;
 
     }

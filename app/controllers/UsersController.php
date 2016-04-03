@@ -11,6 +11,7 @@ class UsersController
         {
             $slim->responseBody = $validator->getMessages();
             $slim->responseMessage = $translator->get('user_login_inputs_notValid');
+            $slim->responseCode = 400;
             return ;
         }
         $validateCredential = Authenticate::validateCredential($posted_data['email'], $posted_data['password']);
@@ -25,12 +26,12 @@ class UsersController
             $slim->user = $user;
         }
 
-        $old_authentication = Authentication::whereUser($user->id)->whereExpired(false)->first();
-        if($old_authentication)
-        {
-            $old_authentication->expired = true;
-            $old_authentication->save();
-        }
+        // $old_authentication = Authentication::whereUser($user->id)->whereExpired(false)->first();
+        // if($old_authentication)
+        // {
+        //     $old_authentication->expired = true;
+        //     $old_authentication->save();
+        // }
 
         $api_key = Authenticate::generateNewToken();
         $authentication = new Authentication();

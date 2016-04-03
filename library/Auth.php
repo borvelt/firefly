@@ -19,7 +19,7 @@ class Auth
         {
             $slim->redirect = $slim->urlFor('login');
             $slim->responseMessage = $translator->get('user_login_required');
-            $slim->responseCode = 301;
+            $slim->responseCode = 401;
             halt_app();
         }
         else if (is_array($checkApiKey) && reset($checkApiKey) == GENERATE_NEW_TOKEN)
