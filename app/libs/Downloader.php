@@ -56,8 +56,8 @@ class Downloader {
             }
         } else {
             if(strpos($aa = $this->checklib($url),'http://libgen.io/') !== false) {
-                $libhtml = @HtmlDomParser::file_get_html($aa);
-                $dlib	 = @$libhtml->find('a[title=Libgen]',0)->href;
+                $libhtml = HtmlDomParser::file_get_html($aa);
+                $dlib	 = $libhtml->find('a[title=Libgen]',0)->href;
                 $dlib	 = str_replace('../','',$dlib);
                 $dlib	 = 'http://libgen.io/'.$dlib;
                 $dlibhtm = @HtmlDomParser::file_get_html($dlib);
@@ -167,7 +167,7 @@ class Downloader {
             $filename =  substr($filename, 0, 10). "" . substr($filename, -5);
         }
         if (!file_exists(Config::app('webDirectory') . 'download/')) {
-            mkdir(Config::app('webDirectory') . 'download/' , 0777, true);
+            mkdir(Config::app('webDirectory') . 'download/' , 0755, true);
         }
         if (file_exists(Config::app('webDirectory') . 'download/' . $filename)) {
             $path = Config::app('webDirectory') . 'download/' . $filename;

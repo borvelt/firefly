@@ -34,7 +34,11 @@ class BooksController
         } else {
             // $slim->responseBody = $response;
             // $slim->responseCode = 202;
-            return [$response, 202];
+          if($response == 'not_found') {
+              return [$response, 404];
+          } else {
+              return [$response, 202];
+          }
         }
 
     }
@@ -43,8 +47,10 @@ class BooksController
 
         $posted_data = $slim->request->post();
         $slim->responseBody = $posted_data;
-        $books = Book::where('title','like','%'.$posted_data['book_name'].'%')->take($posted_data['limitation'])->get()->toArray();
-        $slim->responseBody = $books;
+        $books = Book::where('title','like','%'.$posted_data['book_name'].'%');
+        $total_books = $books->count();
+        $books_array = $books->skip($posted_data['page'] * $posted_data['limitation'])->take($posted_data['limitation'])->get()->toArray();
+        $slim->responseBody = ['books'=>$books_array, 'total'=>$total_books];
 
     }
 
