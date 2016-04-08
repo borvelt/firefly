@@ -37,13 +37,27 @@ class Downloader {
         $pass = parse_url($this->url);
         if (isset($pass['query'])) {
             $url = $pass['scheme'].'://'.$pass['host'].'.sci-hub.io'.$pass['path'].'?'.$pass['query'];
+            if (strpos($url, "http://libgen.io") !== false) {
+                $url = "http://libgen.io".$pass['path'].'?'.$pass['query'];
+            }
         } else {
             $url = $pass['scheme'].'://'.$pass['host'].'.sci-hub.io'.$pass['path'];
+            if (strpos($url, "http://libgen.io") !== false) {
+                $url = "http://libgen.io".$pass['path'];
+            }
         }
-        $html =  @HtmlDomParser::file_get_html($url);
+        try {
+            $html =  @HtmlDomParser::file_get_html($url);
+        } catch (Exception $e) {
+            return 'connection_error';
+        }
         $reallink = @$html->find('iframe',0)->src;
         if($reallink) {
-            $iframhtml = @HtmlDomParser::file_get_html($reallink);
+            try {
+                $iframhtml = @HtmlDomParser::file_get_html($reallink);
+            } catch (Exception $e) {
+                return 'connection_error';
+            }
             if($iframhtml) {
                 $returnbody = $this->cookiegetter($reallink);
                 return [
@@ -56,15 +70,10 @@ class Downloader {
             }
         } else {
             if(strpos($aa = $this->checklib($url),'http://libgen.io/') !== false) {
-                $libhtml = HtmlDomParser::file_get_html($aa);
-                $dlib	 = $libhtml->find('a[title=Libgen]',0)->href;
-                $dlib	 = str_replace('../','',$dlib);
-                $dlib	 = 'http://libgen.io/'.$dlib;
-                $dlibhtm = @HtmlDomParser::file_get_html($dlib);
-                $dliblin = @$dlibhtm->find('a',0)->href;
-                $dliblin = 'http://libgen.io'.$dliblin;
-                $pdflib	 = $this->checklib($dliblin);
-                $this->download('http://libgen.io/'.$pdflib);
+                //$libhtml = @HtmlDomParser::file_get_html($aa);
+                $dlib	= @$html->find('a',0)->href;
+                $dlib	= str_replace('../','',$dlib);
+                return $this->download('http://libgen.io'.$dlib);
             } else {
                 $urlcheck = @$html->find('form',0)->action;
                 if (strpos($urlcheck,'solve') !== false) {
@@ -87,7 +96,7 @@ class Downloader {
 
     private function checklib($url) {
         $aa =  get_headers($url, 1);
-        return isset($aa['Location']) ? $aa['Location'] : null;
+        return isset($aa['Location']) ? $aa['Location'] : $url;
     }
 
     public function captchpasser ($which,$captch) {
@@ -161,8 +170,11 @@ class Downloader {
         }
     }
 
-    private function download($url) {
+    private function download ($url) {
         $filename = urldecode(basename($url));
+        if(strpos($filename, 'md5') !== false && strpos($url, 'http://libgen.io') !== false) {
+            $filename = $this->getFileNameFromUrl($url);
+        }
         if (strlen($filename) >= 2000) {
             $filename =  substr($filename, 0, 10). "" . substr($filename, -5);
         }
@@ -180,28 +192,34 @@ class Downloader {
         }
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
-        $curl = curl_init($url);
-        curl_setopt_array($curl, [
-            CURLOPT_URL            => $url,
-            CURLOPT_BINARYTRANSFER => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_FILE           => $file,
-            CURLOPT_TIMEOUT        => 150,
-            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
-            CURLOPT_COOKIEFILE	   => dirname ( __FILE__ ).'/cookie_file1.txt',
-            CURLOPT_PROXY		   => $_SESSION["proxy"]
-        ]);
-        $response = curl_exec($curl);
+        if (strpos($url, 'http://libgen.io') !== false) {
+          $response = file_put_contents($path, fopen($url, 'r'));
+        } else {
+          $curl = curl_init($url);
+          curl_setopt_array($curl, [
+              CURLOPT_URL            => $url,
+              CURLOPT_BINARYTRANSFER => 1,
+              CURLOPT_RETURNTRANSFER => 1,
+              CURLOPT_FILE           => $file,
+              CURLOPT_TIMEOUT        => 150,
+              CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
+              CURLOPT_COOKIEFILE	   => dirname ( __FILE__ ).'/cookie_file1.txt',
+              CURLOPT_PROXY		   => $_SESSION["proxy"]
+          ]);
+          $response = curl_exec($curl);
+        }
         if($response === false) {
             throw new \Exception('Curl error: ' . curl_error($curl));
         }
-        if($response == '1') {
+        if($response == '1' || $response == true) {
             if(filesize ($path) > 2500) {
                 return $this->margeit($path);
             } else {
+                unlink($path);
                 return "not_found";
             }
         } else {
+            unlink($path);
             return "not_found";
         }
     }
@@ -225,47 +243,75 @@ class Downloader {
 
     private function zipit($file) {
         $pdf = Config::app('webDirectory').'download/' . basename($file);
-        $filename = Config::app('webDirectory').'download/' . basename($file,".pdf").'.zip';
+        $filename = Config::app('webDirectory').'download/' . basename($file).'.zip';
         if(!file_exists($filename)) {
-            system("zip --junk-paths -P http://motarjeminiran.com $filename $pdf");
+            $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\""];
+            $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"'];
+            system("zip --junk-paths -P http://motarjeminiran.com " . str_replace($skip, $replace, $filename) . " ". str_replace($skip, $replace, $pdf));
             ob_clean();
+            // $zip = new ZipArchive();
+            // if ($zip->open($filename, ZipArchive::CREATE)!==TRUE) {
+            //     return "error_create_zip_file";
+            // }
+            // $zip->setPassword("http://motarjeminiran.com");
+            // $zip->addFile($pdf,basename($pdf));
+            // $zip->close();
         }
         return ['filename' => $filename, 'url' => $this->url];
     }
 
     private function margeit ($file) {
-        require_once(__DIR__ . "/pdf-old/fpdf.php");
-        require_once(__DIR__ . "/pdf-old/fpdi.php");
-        // initiate FPDI
-        $pdf = new FPDI();
-        // add a page
-        $pdf->AddPage();
-        $pdf->SetFont('Helvetica');
-        $pdf->SetTextColor(255, 0, 0);
-        $pdf->SetXY(30, 30);
-        $pdf->Image(Config::app("webDirectory") . "images/motarjemin iran 00111.jpg", 5, 5, 200, 0, '', "http://www.motarjeminiran.com/");
-        // set the source file
-        $pageCount = $pdf->setSourceFile($file);
-        // import page 1
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-            // import a page
-            $templateId = $pdf->importPage($pageNo);
-            // get the size of the imported page
-            $size = $pdf->getTemplateSize($templateId);
-            // create a page (landscape or portrait depending on the imported page size)
-            if ($size['w'] > $size['h']) {
-                $pdf->AddPage('L', array($size['w'], $size['h']));
-            } else {
-                $pdf->AddPage('P', array($size['w'], $size['h']));
-            }
-            // use the imported page
-            $pdf->useTemplate($templateId);
-            $pdf->SetFont('Helvetica');
-            $pdf->SetXY(5, 5);
-            $pdf->Write(8, '');
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        if( $ext != 'pdf' ) {
+            return $this->zipit($file);
         }
-        $pdf->Output($file,'F');
-        return $this->zipit($file);
+        try {
+            require_once(__DIR__ . "/pdf-old/fpdf.php");
+            require_once(__DIR__ . "/pdf-old/fpdi.php");
+            // initiate FPDI
+            $pdf = new FPDI();
+            // add a page
+            $pdf->AddPage();
+            $pdf->SetFont('Helvetica');
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->SetXY(30, 30);
+            $pdf->Image(Config::app("webDirectory") . "images/motarjemin iran 00111.jpg", 5, 5, 200, 0, '', "http://www.motarjeminiran.com/");
+            // set the source file
+            $pageCount = $pdf->setSourceFile($file);
+            // import page 1
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                // import a page
+                $templateId = $pdf->importPage($pageNo);
+                // get the size of the imported page
+                $size = $pdf->getTemplateSize($templateId);
+                // create a page (landscape or portrait depending on the imported page size)
+                if ($size['w'] > $size['h']) {
+                    $pdf->AddPage('L', array($size['w'], $size['h']));
+                } else {
+                    $pdf->AddPage('P', array($size['w'], $size['h']));
+                }
+                // use the imported page
+                $pdf->useTemplate($templateId);
+                $pdf->SetFont('Helvetica');
+                $pdf->SetXY(5, 5);
+                $pdf->Write(8, '');
+            }
+            $pdf->Output($file,'F');
+            return $this->zipit($file);
+        } catch (Exception $e) {
+            return $this->zipit($file);
+        }
+    }
+
+    private function getFileNameFromUrl ($url) {
+        $filename = null;
+        $headers = get_headers($url);
+        foreach ($headers as $header) {
+            if (strpos($header, 'Content-Disposition') !== false) {
+                $filename = str_replace("\"", '', end(explode('=',$header)));
+            }
+        }
+        return $filename;
     }
 
 }

@@ -37,7 +37,7 @@ class Config
         'IpLocationApiAddress' => 'http://ip-api.com/json/',
         'encryptKeySize' => 32,
         'encryptSecretKey' => 'bc5b9275bd794ac47581114b66d14d81076',
-        'api_key_regenerate_time' => 1800,
+        'api_key_regenerate_time' => 180000,
         //CROSS DOMAIN REQUEST CONFIGURATION;
         'Cross-Domain-Request' => false,
         'Access-Control-Allow-Origin' => 'http://localhost:9000',

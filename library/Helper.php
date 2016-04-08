@@ -98,15 +98,17 @@ function halt_app($code = null, $headers = null, $body = null)
         $hValues = explode("\n", $value);
         foreach ($hValues as $hVal)
         {
-            //echo '"' . $name . ': ' . $hVal . '"';
-            //header('"' . $name . ': ' . $hVal . '"', false);
             header("$name: $hVal", false);
         }
     }
     ob_clean();
     if (!$slim->request->isHead())
     {
-        echo $body;
+        if(isJson($body)) {
+            echo $body;
+        } else {
+            echo json_encode(['body'=>$body]);
+        }
     }
     exit;
 }

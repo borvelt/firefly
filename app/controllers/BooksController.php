@@ -29,29 +29,40 @@ class BooksController
 
         if(isset($response['filename'])) {
             $enc = encrypt ($slim->request->getIp() . "#" . basename($response['filename']) . "#" . time() . "#" . $response['url']);
-            // $slim->responseBody = ['download_link'=>$slim->urlFor("downloadBookByUID", ['uid'=>$enc])];
             return [['download_link'=>$slim->urlFor("downloadBookByUID", ['uid'=>$enc])], 200];
+        } else if (isset($response['type'])) {
+            return [$response, 202];
         } else {
-            // $slim->responseBody = $response;
-            // $slim->responseCode = 202;
-          if($response == 'not_found') {
-              return [$response, 404];
-          } else {
-              return [$response, 202];
-          }
+            switch ($response) {
+              case 'bad_captcha':
+                return [$response, 400];
+                break;
+              case 'not_found':
+                return [$response, 404];
+                break;
+              case 'connection_error':
+                return [$response, 503];
+                break;
+              case 'error_create_zip_file':
+                return [$response, 503];
+                break;
+                case 'file_not_accessible':
+                  return [$response, 410];
+                  break;
+              default:
+                return [$response, 410];
+                break;
+            }
         }
-
     }
 
     public function searchBook ($slim) {
-
         $posted_data = $slim->request->post();
         $slim->responseBody = $posted_data;
         $books = Book::where('title','like','%'.$posted_data['book_name'].'%');
         $total_books = $books->count();
         $books_array = $books->skip($posted_data['page'] * $posted_data['limitation'])->take($posted_data['limitation'])->get()->toArray();
         $slim->responseBody = ['books'=>$books_array, 'total'=>$total_books];
-
     }
 
 }
