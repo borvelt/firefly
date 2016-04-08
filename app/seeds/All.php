@@ -3,7 +3,7 @@ return [
     'model' => null,
     'dependencies' => ['User','Authorization'],
     'seeds' => function() {
-        User::find(1)->authorize()->attach(range(1,4));
+        User::find(1)->authorize()->attach(range(1,5));
         return [];
     },
 ];

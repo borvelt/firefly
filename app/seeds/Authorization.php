@@ -12,6 +12,8 @@ return [
 
         $seeds[] = ['group'=> 'download', 'uri_pattern'=> '/download/:uid|GET',];
 
+        $seeds[] = ['group'=> 'report', 'uri_pattern'=> '/books/downloaded|GET',];
+
         return $seeds;
     },
 ];

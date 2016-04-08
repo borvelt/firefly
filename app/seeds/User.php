@@ -9,10 +9,10 @@ return [
     foreach(range(1,1) as $index) {
       $seeds[] = [
         'name_family'=> $faker->name,
-        'password'=> password_hash('123456', PASSWORD_DEFAULT),
+        'password'=> password_hash('04EC533CF5326D89DEF', PASSWORD_DEFAULT),
         'nikname'=> $faker->userName,
         'age'=> $faker->numberBetween(18,50),
-        'email'=> 'borvelt@gmail.com' /*$faker->email*/ ,
+        'email'=> 'B255B9D104EC5@904D1.2D78' /*$faker->email*/ ,
       ];
     }
     return $seeds;

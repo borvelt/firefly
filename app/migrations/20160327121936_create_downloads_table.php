@@ -20,8 +20,13 @@ class CreateDownloadsTable extends Migration
         {
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
-            $table->string ("download_link");
-            $table->string ("request_url");
+            $table-> integer('book')->unsigned()->nullable();
+            $table->string ("download_key",2000);
+            $table->string ("request_url",2000);
+            $table->string ("ip",15);
+
+            $table->foreign('book')->references('id')->on('books')->onDelete('CASCADE');
+
             // Timestamps
             $table->timestamps();
             $table->softDeletes();

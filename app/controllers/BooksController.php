@@ -65,4 +65,14 @@ class BooksController
         $slim->responseBody = ['books'=>$books_array, 'total'=>$total_books];
     }
 
+    public function downloadedBooks ($slim) {
+        $limitation = $slim->request->get ('limitation');
+        $offset = $slim->request->get ('page');
+        $limitation = !is_null($limitation) ? $limitation : 50;
+        $offset = !is_null($offset) ? $offset : 0;
+        $downloads_count = Download::all()->count();
+        $downloads = Download::orderBy('created_at', 'DESC')->skip($limitation * $offset)->take ($limitation)->get()->toArray();
+        $slim->responseBody = ['downloads'=>$downloads, 'total'=>$downloads_count];
+    }
+
 }

@@ -14,7 +14,7 @@
   },
   "autoload": {
     "classmap": ["app/","library/"],
-    "files": ["library/Helper.php", "library/ErrorHandler.php"]
+    "files": ["library/Helper.php", "library/solar_date.php", "library/ErrorHandler.php"]
   },
   "config": {
     "bin-dir": "bin/"
