@@ -12,7 +12,7 @@ return [
         'password'=> password_hash('04EC533CF5326D89DEF', PASSWORD_DEFAULT),
         'nikname'=> $faker->userName,
         'age'=> $faker->numberBetween(18,50),
-        'email'=> 'B255B9D104EC5@904D1.2D78' /*$faker->email*/ ,
+        'email'=> 'B255B9D104EC5@email.com' /*$faker->email*/ ,
       ];
     }
     return $seeds;
