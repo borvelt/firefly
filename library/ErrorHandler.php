@@ -31,8 +31,13 @@ function error_exception_handler($exception=null)
   if(count($response))
   {
     $file=fopen (__DIR__.DIRECTORY_SEPARATOR."../app/logs/".strtotime(date("Y-m-d")).".log", "a+");
+    if(isset($_SERVER['REMOTE_ADDR'])) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ip = "From CLI";
+    }
     $log="[".date("D, d M y h:i:s O")."][ERROR] ".
-    $response['message']." file:".$response['file']." line:".$response['line']." IP:".$_SERVER['REMOTE_ADDR']."\n";
+    $response['message']." file:".$response['file']." line:".$response['line']." IP:".$ip."\n";
     fwrite($file, $log);
     fclose($file);
     $body = $response;

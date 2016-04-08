@@ -8,7 +8,7 @@ class DownloadBookController {
         $generation_time = $book_name[2];
         $ip = $book_name[0];
         $book_name = $book_name[1];
-        if(time() - $generation_time > 6000) {
+        if(time() - $generation_time > 60) {
             halt_app(404, null, 'link_destroyed');
         }
         // if ($slim->request->getIp() != $ip) {

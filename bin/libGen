@@ -3,42 +3,48 @@
 
 require __DIR__.DIRECTORY_SEPARATOR.'../vendor/autoload.php';
 
-$last_book_id = 0;
+error_reporting(1);
+
+$last_book_id = isset($argv[4]) ? $argv[4] : 0;
 
 try {
     $client = new GuzzleHttp\Client();
 
-    //Get last book id
-    $first_strike = 0;
-    $date_strike = 0;
-    do {
-        $url = "http://libgen.io/json.php?fields=%2A&mode=last";
-        $url .= "&timefirst=". date('Y-m-d', time() - 86400*$date_strike);
-        $url .= "&limit1=" . $first_strike*1000 . "&limit2=1000";
-        $res = $client->request("GET", $url);
-        $received_data = json_decode($res->getBody(),true);
-        if (count($received_data) < 1000 && count($received_data) != 0) {
-            $last_received_data_item = end($received_data);
-            $last_book_id = $last_received_data_item["ID"];
-            break;
-        }
-        $first_strike++;
-        if (count($received_data) == 0) {
-            $date_strike++;
-            $first_strike = 0;
-        }
-    } while (true);
+    if(!$last_book_id) {
+        //Get last book id
+        $first_strike = 0;
+        $date_strike = 0;
+        do {
+            $url = "http://libgen.io/json.php?fields=%2A&mode=last";
+            $url .= "&timefirst=". date('Y-m-d', time() - 86400*$date_strike);
+            $url .= "&limit1=" . $first_strike*1000 . "&limit2=1000";
+            $res = $client->request("GET", $url);
+            $received_data = json_decode($res->getBody(),true);
+            if (count($received_data) < 1000 && count($received_data) != 0) {
+                $last_received_data_item = end($received_data);
+                $last_book_id = $last_received_data_item["ID"];
+                break;
+            }
+            $first_strike++;
+            if (count($received_data) == 0) {
+                $date_strike++;
+                $first_strike = 0;
+            }
+        } while (true);
 
+    }
     //Download Books
-    $limiter = 100;
+    $save_url = [];
+    $save_response = [];
+    $bulk_counter = $argv[1];
+    $limiter = $argv[2];
     $bulk = intval($last_book_id/$limiter);
     $remain = $last_book_id % $limiter;
     if($remain > 0) {
         $bulk++;
     }
-    $bulk_counter = 0;
-    $to = $limiter;
-    while ($bulk_counter <= $bulk) {
+    $to = $bulk_counter * $limiter + $limiter;
+    if ($bulk_counter <= $bulk) {
         $url = "http://libgen.io/json.php?fields=%2A&ids=";
         $from = $bulk_counter * $limiter;
         for ($id = $from + 1; $id <= $to; $id++) {
@@ -48,25 +54,36 @@ try {
             }
             $url .= $append;
         }
+        $save_url[] = $url;
         $res = $client->request('GET', $url);
         $books = json_decode($res->getBody(),true);
+        $save_response[] = $books;
         foreach ($books as $book_info) {
             if ($old_book = Book::whereBookId($book_info["ID"])->first()) {
                 if(strtotime($old_book->timeLastModified) < strtotime($book_info["TimeLastModified"])) {
                     myMassAssignment($old_book, $book_info);
                     $old_book->save();
-                    sleep(5);
+                    remove_book ($book_info['MD5']);
                 }
             } else {
                 $new_book = new Book();
                 myMassAssignment($new_book, $book_info);
                 $new_book->save();
-                sleep(5);
             }
         }
         $bulk_counter++;
         $to = ($bulk_counter + 1) * $limiter;
     }
+
+    $schedule_id = $argv[3];
+    $schedule = Schedule::find($schedule_id);
+    if ($schedule) {
+        $schedule->request_url = json_encode($save_url);
+        $schedule->response = json_encode($save_response);
+        $schedule->is_done = true;
+        $schedule->save();
+    }
+
 } catch (Exception $e) {
     echo $e->getMessage();
 }
@@ -120,4 +137,23 @@ function myMassAssignment (&$new_book, $book_info) {
     $new_book->coverURL = $book_info['Coverurl'];
     $new_book->tags = $book_info['Tags'];
     $new_book->identifierWODash = $book_info['IdentifierWODash'];
+}
+
+function remove_book ($md5) {
+    $filename = getFileNameFromUrl('http://libgen.io/ads.php?md5='.$md5);
+    $pdf = Config::app('webDirectory').'download/' . basename($filename);
+    $zip = Config::app('webDirectory').'download/' . basename($filename).'.zip';
+    unlink ($pdf);
+    unlink ($zip);
+}
+
+function getFileNameFromUrl ($url) {
+    $filename = null;
+    $headers = get_headers($url);
+    foreach ($headers as $header) {
+        if (strpos($header, 'Content-Disposition') !== false) {
+            $filename = str_replace("\"", '', end(explode('=',$header)));
+        }
+    }
+    return $filename;
 }
