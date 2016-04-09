@@ -75,4 +75,16 @@ class BooksController
         $slim->responseBody = ['downloads'=>$downloads, 'total'=>$downloads_count];
     }
 
+    public function reportBook ($slim) {
+        $posted_data = $slim->request->post();
+        $book = Book::find($posted_data['book_id']);
+        if (!$book) {
+            $slim->responseMessage = "book_not_found";
+            $slim->responseCode = 404;
+            return ;
+        }
+        Report::create(['book'=>$book->id, 'ip'=>$posted_data['ip']]);
+        $slim->responseMessage = "report_success";
+    }
+
 }

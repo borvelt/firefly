@@ -46,6 +46,12 @@ $slim->group('/books', 'Auth::check', function () use ($slim)
         $slim->render([]);
     })->name('getReport');
 
+    $slim->POST('/report', function () use ($slim)
+    {
+        Controller::call('BooksController', 'reportBook');
+        $slim->render([]);
+    })->name('reportBook');
+
     $slim->POST('/by-link', function () use ($slim)
     {
         Controller::call('BooksController', 'getBookByLinkNeedCaptcha');

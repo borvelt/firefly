@@ -39,7 +39,7 @@ class Config
         'encryptSecretKey' => 'bc5b9275bd794ac47581114b66d14d81076',
         'api_key_regenerate_time' => 600,
         //CROSS DOMAIN REQUEST CONFIGURATION;
-        'Cross-Domain-Request' => true,
+        'Cross-Domain-Request' => false,
         'Access-Control-Allow-Origin' => 'http://localhost:9000',
         'Access-Control-Allow-Methods'=>'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers'=>'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Token',
