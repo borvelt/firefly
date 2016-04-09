@@ -31,13 +31,15 @@ try {
                 $first_strike = 0;
             }
         } while (true);
-
     }
     //Download Books
     $save_url = [];
     $save_response = [];
     $bulk_counter = $argv[1];
     $limiter = $argv[2];
+    if ($bulk_counter * $limiter > $last_book_id) {
+        exit("OverflowException");
+    }
     $bulk = intval($last_book_id/$limiter);
     $remain = $last_book_id % $limiter;
     if($remain > 0) {
