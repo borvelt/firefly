@@ -59,7 +59,7 @@ class BooksController
     public function searchBook ($slim) {
         $posted_data = $slim->request->post();
         $slim->responseBody = $posted_data;
-        $books = Book::where('title','like','%'.$posted_data['book_name'].'%');
+        $books = Book::where('title','like','%'.$posted_data['book_name'].'%')->where('is_blocked',false);
         $total_books = $books->count();
         $books_array = $books->skip($posted_data['page'] * $posted_data['limitation'])->take($posted_data['limitation'])->get()->toArray();
         $slim->responseBody = ['books'=>$books_array, 'total'=>$total_books];
@@ -75,6 +75,18 @@ class BooksController
         $slim->responseBody = ['downloads'=>$downloads, 'total'=>$downloads_count];
     }
 
+    public function reportedBooks ($slim) {
+        $limitation = $slim->request->get ('limitation');
+        $offset = $slim->request->get ('page');
+        $limitation = !is_null($limitation) ? $limitation : 50;
+        $offset = !is_null($offset) ? $offset : 0;
+        $reports_count = Report::all()->groupBy('book')->count();
+        $db = Bootstrap::Eloquent()->getConnection();
+        $reports = $db->table('reports')->select('*', $db->raw('count(*) as total'))->groupBy('book')->join('books','book','=','books.id')->skip($limitation * $offset)->take ($limitation)->get();
+        $slim->responseBody = ['reports'=>$reports, 'total'=>$reports_count];
+
+    }
+
     public function reportBook ($slim) {
         $posted_data = $slim->request->post();
         $book = Book::find($posted_data['book_id']);
@@ -86,5 +98,19 @@ class BooksController
         Report::create(['book'=>$book->id, 'ip'=>$posted_data['ip']]);
         $slim->responseMessage = "report_success";
     }
+
+    public function blockBook ($slim) {
+        $posted_data = $slim->request->post();
+        $book = Book::find($posted_data['book_id']);
+        if (!$book) {
+            $slim->responseMessage = "book_not_found";
+            $slim->responseCode = 404;
+            return ;
+        }
+        $book->is_blocked = !$book->is_blocked;
+        $book->save();
+        $slim->responseMessage = "operation_success";
+    }
+
 
 }

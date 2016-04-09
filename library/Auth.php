@@ -24,8 +24,8 @@ class Auth
         }
         else if (is_array($checkApiKey) && reset($checkApiKey) == GENERATE_NEW_TOKEN)
         {
-            $slim->responseMessage = $translator->get('user.login.re_login');
-            $slim->responseCode = 400;
+            $slim->responseMessage = $translator->get('user_login_re_login');
+            $slim->responseCode = 401;
             halt_app();
 //            $api_key = Authenticate::generateNewToken();
 //            Authentication::create(['api_key'=>$api_key, 'user'=>end($checkApiKey)->id]);

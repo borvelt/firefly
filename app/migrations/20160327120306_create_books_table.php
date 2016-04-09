@@ -69,6 +69,7 @@ class CreateBooksTable extends Migration
             $table->string('coverURL');
             $table->string('tags');
             $table->string('identifierWODash');
+            $table->boolean('is_blocked')->default(false);
             // Timestamps
             $table->timestamps();
             $table->softDeletes();

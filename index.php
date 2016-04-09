@@ -44,13 +44,27 @@ $slim->group('/books', 'Auth::check', function () use ($slim)
     {
         Controller::call('BooksController', 'downloadedBooks');
         $slim->render([]);
+    })->name('getDownloaded');
+
+    $slim->GET('/reported', function () use ($slim)
+    {
+        Controller::call('BooksController', 'reportedBooks');
+        $slim->render([]);
     })->name('getReport');
+
 
     $slim->POST('/report', function () use ($slim)
     {
         Controller::call('BooksController', 'reportBook');
         $slim->render([]);
     })->name('reportBook');
+
+    $slim->POST('/block', function () use ($slim)
+    {
+        Controller::call('BooksController', 'blockBook');
+        $slim->render([]);
+    })->name('blockBook');
+
 
     $slim->POST('/by-link', function () use ($slim)
     {
