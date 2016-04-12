@@ -16,8 +16,8 @@ class BooksController
     }
 
     public function getBookByLinkNeedCaptcha ($slim) {
-        
-        $slim->url = $slim->request->get('url');
+
+	$slim->url = $slim->request->get('url');
 
         $dl = new Downloader();
 
