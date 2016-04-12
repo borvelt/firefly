@@ -1,4 +1,5 @@
 /.idea/
+/app/configs/Database.php
 /vendor/
 /web/
 /web/system/

@@ -57,15 +57,17 @@ exit($_SESSION['proxy']);
                 $url = "http://libgen.io".$pass['path'];
             }
         }
+        $context = array('http' => array('proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,),);
+        $stream = stream_context_create($context);
         try {
-            $html =  @HtmlDomParser::file_get_html($url);
+            $html =  @HtmlDomParser::file_get_html($url,true, $stream);
         } catch (Exception $e) {
             return 'connection_error';
         }
         $reallink = @$html->find('iframe',0)->src;
         if($reallink) {
             try {
-                $iframhtml = @HtmlDomParser::file_get_html($reallink);
+                $iframhtml = @HtmlDomParser::file_get_html($reallink,true, $stream);
             } catch (Exception $e) {
                 return 'connection_error';
             }
