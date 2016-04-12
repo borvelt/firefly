@@ -14,6 +14,17 @@ class Downloader {
         } else {
             $this->url = $url;
         }
+
+        if( !isset($_SESSION["proxy"]) &&!isset($_SESSION['times'])) {
+            $_SESSION["proxy"] = $this->setProxy();
+            $_SESSION['time'] = time() + 10*60;
+        }
+
+        if($_SESSION["time"] == time()) {
+            $_SESSION["proxy"] = $this->setProxy();
+            $_SESSION['time'] = time() + 10*60;
+        }
+
     }
 
     public static function limitByLink () {
@@ -70,7 +81,6 @@ class Downloader {
             }
         } else {
             if(strpos($aa = $this->checklib($url),'http://libgen.io/') !== false) {
-                //$libhtml = @HtmlDomParser::file_get_html($aa);
                 $dlib	= @$html->find('a',0)->href;
                 $dlib	= str_replace('../','',$dlib);
                 return $this->download('http://libgen.io'.$dlib);
@@ -185,6 +195,8 @@ class Downloader {
             $path = Config::app('webDirectory') . 'download/' . $filename;
             if(filesize($path) > 2500) {
                 return $this->zipit($path);
+            } else {
+                unlink($path);
             }
         }
         if (!preg_match("#^https?:.+#", $url)) {
@@ -192,35 +204,19 @@ class Downloader {
         }
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
-        if (strpos($url, 'http://libgen.io') !== false) {
-          $response = file_put_contents($path, fopen($url, 'r'));
-        } else {
-          $curl = curl_init($url);
-          curl_setopt_array($curl, [
-              CURLOPT_URL            => $url,
-              CURLOPT_BINARYTRANSFER => 1,
-              CURLOPT_RETURNTRANSFER => 1,
-              CURLOPT_FILE           => $file,
-              CURLOPT_TIMEOUT        => 150,
-              CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
-              CURLOPT_COOKIEFILE	   => dirname ( __FILE__ ).'/cookie_file1.txt',
-              CURLOPT_PROXY		   => $_SESSION["proxy"]
-          ]);
-          $response = curl_exec($curl);
-        }
-        if($response === false) {
-            throw new \Exception('Curl error: ' . curl_error($curl));
-        }
-        if($response == '1' || $response == true) {
+        try {
+            $client = new GuzzleHttp\Client();
+            $response = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
             if(filesize ($path) > 2500) {
                 return $this->margeit($path);
             } else {
                 unlink($path);
-                return "not_found";
+                return "file_not_compatible";
             }
-        } else {
+        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             unlink($path);
-            return "not_found";
+            return "file_not_accessible";
+            throw new \Exception($serverException->getMessage());
         }
     }
 
@@ -249,13 +245,6 @@ class Downloader {
             $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"'];
             system("zip --junk-paths -P http://motarjeminiran.com " . str_replace($skip, $replace, $filename) . " ". str_replace($skip, $replace, $pdf));
             ob_clean();
-            // $zip = new ZipArchive();
-            // if ($zip->open($filename, ZipArchive::CREATE)!==TRUE) {
-            //     return "error_create_zip_file";
-            // }
-            // $zip->setPassword("http://motarjeminiran.com");
-            // $zip->addFile($pdf,basename($pdf));
-            // $zip->close();
         }
         return ['filename' => $filename, 'url' => $this->url];
     }
@@ -313,5 +302,14 @@ class Downloader {
         }
         return $filename;
     }
+
+    private function setProxy () {
+        //download http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080
+        $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080");
+        //split it to array load randomly
+        $proxys = explode("\n", $proxy);
+        $random = rand(0,count($proxy));
+        return $proxys[$random];
+    } 
 
 }

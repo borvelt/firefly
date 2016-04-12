@@ -51,6 +51,9 @@ class BooksController
                 case 'file_not_accessible':
                   return [$response, 410];
                   break;
+                case 'file_not_compatible':
+                  return [$response, 410];
+                  break;
               default:
                 return [$response, 410];
                 break;
