@@ -37,7 +37,7 @@ class Config
         'IpLocationApiAddress' => 'http://ip-api.com/json/',
         'encryptKeySize' => 32,
         'encryptSecretKey' => 'bc5b9275bd794ac47581114b66d14d81076',
-        'api_key_regenerate_time' => 600,
+        'api_key_regenerate_time' => 60000,
         //CROSS DOMAIN REQUEST CONFIGURATION;
         'Cross-Domain-Request' => false,
         'Access-Control-Allow-Origin' => 'http://localhost:9000',
@@ -46,17 +46,18 @@ class Config
         'Access-Control-Allow-Credentials'=>'true',
         'JSON-Content-Type'=>'application/json; charset=utf-8',
     );
-    private static $database = array
-    (
+    
+    private static $database = [
         'driver' => 'mysql',
         'host' => '127.0.0.1',
-        'database' => 'admin_science',
-        'username' => 'admin_science',
-        'password' => '5C6ZKLFo',
+        'database' => '',
+        'username' => '',
+        'password' => '',
         'prefix'    => '',
         'charset'   => "utf8",
         'collation' => "utf8_unicode_ci"
-    );
+    ];
+
     public static function app($key = null)
     {
         self::$app['view'] = new \JsonView();
@@ -75,6 +76,7 @@ class Config
     }
     public static function database($key = null)
     {
+        self::$database = require __DIR__.DIRECTORY_SEPARATOR."Database.php";
         if(!is_null($key))
         {
             return self::$database[$key];

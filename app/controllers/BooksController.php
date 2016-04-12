@@ -16,7 +16,7 @@ class BooksController
     }
 
     public function getBookByLinkNeedCaptcha ($slim) {
-	
+
 	$slim->url = $slim->request->get('url');
 
         $dl = new Downloader();
@@ -49,6 +49,9 @@ class BooksController
                 return [$response, 503];
                 break;
                 case 'file_not_accessible':
+                  return [$response, 410];
+                  break;
+                case 'file_not_compatible':
                   return [$response, 410];
                   break;
               default:
