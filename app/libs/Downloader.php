@@ -6,6 +6,7 @@ class Downloader {
 
     private static $limitDownload = 100;
     private $url = null;
+    private $client;
 
     public function __construct ($url = null) {
         if (is_null($url)) {
@@ -14,6 +15,8 @@ class Downloader {
         } else {
             $this->url = $url;
         }
+
+        $this->client = new GuzzleHttp\Client();
 
         if( !isset($_SESSION["proxy"]) &&!isset($_SESSION['times'])) {
             $_SESSION["proxy"] = $this->setProxy();
@@ -60,15 +63,16 @@ class Downloader {
         $context = array('http' => array('proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,),);
         $stream = stream_context_create($context);
         try {
-            $html =  @HtmlDomParser::file_get_html($url);
-            exit(var_export($html));
+            $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
+            $html =  @HtmlDomParser::str_get_html($html_str);
         } catch (Exception $e) {
             return 'connection_error';
         }
         $reallink = @$html->find('iframe',0)->src;
         if($reallink) {
             try {
-                $iframhtml = @HtmlDomParser::file_get_html($reallink,true, $stream);
+                $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
+                $iframhtml = @HtmlDomParser::str_get_html($html_str);
             } catch (Exception $e) {
                 return 'connection_error';
             }
@@ -208,8 +212,7 @@ class Downloader {
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
         try {
-            $client = new GuzzleHttp\Client();
-            $response = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
+            $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
             if(filesize ($path) > 2500) {
                 return $this->margeit($path);
             } else {
@@ -311,7 +314,6 @@ class Downloader {
         $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080");
         //split it to array load randomly
         $proxys = explode("\n", $proxy);
-        exit(var_dump($proxys));
         $random = rand(0,count($proxy));
         return $proxys[$random];
     } 
