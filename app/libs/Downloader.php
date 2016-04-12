@@ -311,6 +311,7 @@ class Downloader {
         $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080");
         //split it to array load randomly
         $proxys = explode("\n", $proxy);
+        exit(var_dump($proxys));
         $random = rand(0,count($proxy));
         return $proxys[$random];
     } 
