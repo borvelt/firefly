@@ -60,12 +60,13 @@ class Downloader {
                 $url = "http://libgen.io".$pass['path'];
             }
         }
-        $context = array('http' => array('proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,),);
-        $stream = stream_context_create($context);
+        // $context = array('http' => array('proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,),);
+        // $stream = stream_context_create($context);
         try {
             $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
             $html =  @HtmlDomParser::str_get_html($html_str);
-        } catch (Exception $e) {
+        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
+            exit(var_export($serverException->getMessage()));
             return 'connection_error';
         }
         $reallink = @$html->find('iframe',0)->src;
@@ -73,7 +74,7 @@ class Downloader {
             try {
                 $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
                 $iframhtml = @HtmlDomParser::str_get_html($html_str);
-            } catch (Exception $e) {
+            } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
                 return 'connection_error';
             }
             if($iframhtml) {
