@@ -60,7 +60,7 @@ class Downloader {
         $context = array('http' => array('proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,),);
         $stream = stream_context_create($context);
         try {
-            $html =  @HtmlDomParser::file_get_html($url,true, $stream);
+            $html =  @HtmlDomParser::file_get_html($url);
             exit(var_export($html));
         } catch (Exception $e) {
             return 'connection_error';
