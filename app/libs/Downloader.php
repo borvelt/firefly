@@ -61,6 +61,7 @@ class Downloader {
         $stream = stream_context_create($context);
         try {
             $html =  @HtmlDomParser::file_get_html($url,true, $stream);
+            exit(var_export($html));
         } catch (Exception $e) {
             return 'connection_error';
         }
