@@ -27,9 +27,6 @@ class Downloader {
             $_SESSION["proxy"] = $this->setProxy();
             $_SESSION['time'] = time() + 10*60;
         }
-
-        exit($_SESSION['proxy']);
-
     }
 
     public static function limitByLink () {
@@ -64,7 +61,8 @@ class Downloader {
         }
         try {
             $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
-            $html =  @HtmlDomParser::str_get_html($html_str->getBody());
+            exit ($html_str->getBody());
+            $html = @HtmlDomParser::str_get_html($html_str->getBody());
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             return 'connection_error';
         }
