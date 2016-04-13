@@ -67,7 +67,9 @@ class Downloader {
             $sFile = file_get_contents("http://www.google.com", false, $cxContext);
             exit(var_dump($sFile));
             $html = @HtmlDomParser::str_get_html($html_str->getBody());
-        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
+        // } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
+        } catch (Exception $serverException) {
+            exit($serverException->getMessage());
             return 'connection_error';
         }
         $reallink = @$html->find('iframe',0)->src;
