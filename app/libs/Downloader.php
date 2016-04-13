@@ -110,7 +110,6 @@ class Downloader {
     }
 
     public function captchpasser ($which,$captch) {
-        exit(var_dump($which));
         switch ($which) {
             case 'fistcaptch':
                 return $this->postdownload($captch);
