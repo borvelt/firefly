@@ -118,7 +118,7 @@ class Downloader {
                 return $this->directsic($captch);
                 break;
             default:
-                return 'bad_captcha';
+                return 'bad_captchaa';
                 break;
         }
     }
