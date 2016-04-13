@@ -205,7 +205,7 @@ class Downloader {
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
         try {
-            $response = $this->client->request("GET", $url, ['sink'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
+            $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
             if(filesize ($path) > 2500) {
                 return $this->margeit($path);
             } else {
