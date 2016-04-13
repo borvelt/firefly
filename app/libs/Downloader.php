@@ -28,6 +28,8 @@ class Downloader {
             $_SESSION['time'] = time() + 10*60;
         }
 
+        exit($_SESSION['proxy']);
+
     }
 
     public static function limitByLink () {
