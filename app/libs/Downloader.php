@@ -60,20 +60,17 @@ class Downloader {
                 $url = "http://libgen.io".$pass['path'];
             }
         }
-        // $context = array('http' => array('proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,),);
-        // $stream = stream_context_create($context);
         try {
             $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
-            $html =  @HtmlDomParser::str_get_html($html_str);
+            $html =  @HtmlDomParser::str_get_html($html_str->getBody());
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
-            exit(var_export($serverException->getMessage()));
             return 'connection_error';
         }
         $reallink = @$html->find('iframe',0)->src;
         if($reallink) {
             try {
                 $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
-                $iframhtml = @HtmlDomParser::str_get_html($html_str);
+                $iframhtml = @HtmlDomParser::str_get_html($html_str->getBody());
             } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
                 return 'connection_error';
             }
@@ -213,7 +210,7 @@ class Downloader {
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
         try {
-            $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
+            $response = $this->client->request("GET", $url, ['sink'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
             if(filesize ($path) > 2500) {
                 return $this->margeit($path);
             } else {
@@ -223,7 +220,6 @@ class Downloader {
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             unlink($path);
             return "file_not_accessible";
-            throw new \Exception($serverException->getMessage());
         }
     }
 
@@ -311,12 +307,12 @@ class Downloader {
     }
 
     private function setProxy () {
-        //download http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080
-        $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080");
+        //download http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080&anon=4
+        $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080&anon=4");
         //split it to array load randomly
         $proxys = explode("\n", $proxy);
         $random = rand(0,count($proxy));
-        return $proxys[$random];
+        return trim($proxys[$random]);
     } 
 
 }

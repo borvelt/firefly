@@ -1,5 +1,4 @@
 /.idea/
-/app/configs/Database.php
 /vendor/
 /web/
 /web/system/
@@ -8,3 +7,4 @@
 *.log
 *.DS_Store
 /composer.phar
+/app/configs/Database.php
