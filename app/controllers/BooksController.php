@@ -23,7 +23,7 @@ class BooksController
 
         if ($slim->request->post('fistcaptch')) {
             $captch = $slim->request->post('fistcaptch');
-        } else if ($captch = $slim->request->post('badcaptch');) {
+        } else if ($slim->request->post('badcaptch')) {
             $captch = $slim->request->post('badcaptch');
         }
 
