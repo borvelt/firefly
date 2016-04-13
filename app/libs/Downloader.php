@@ -60,8 +60,12 @@ class Downloader {
             }
         }
         try {
-            $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
-            exit ($html_str->getBody());
+            //$html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
+            //exit ($html_str->getBody());
+            $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,],];
+            $cxContext = stream_context_create($aContext);
+            $sFile = file_get_contents("http://www.google.com", false, $cxContext);
+            exit($sFile);
             $html = @HtmlDomParser::str_get_html($html_str->getBody());
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             return 'connection_error';
