@@ -204,21 +204,27 @@ class Downloader {
         }
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
-        try {
-            $jar = new \GuzzleHttp\Cookie\CookieJar();
-            $file = fopen(dirname(__FILE__) . '/cookie_file1.txt');
-            $jar->add($file);
-            $response = $this->client->request("GET", $url, ['save_to'=>$file, 'cookie'=>$jar, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
-            exit($response->getBody());
-            if(filesize ($path) > 2500) {
-                return $this->margeit($path);
-            } else {
-                unlink($path);
-                return "file_not_compatible";
-            }
-        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
+        $curl = curl_init($url);
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_BINARYTRANSFER => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_FILE           => $file,
+            CURLOPT_TIMEOUT        => 150,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
+            CURLOPT_COOKIEFILE     => dirname ( __FILE__ ).'./cookie_file1.txt',
+            CURLOPT_PROXY          => $_SESSION["proxy"]
+        ]);
+        $response = curl_exec($curl);
+        if ($response == false || $response != true || $response != 1) {
             unlink($path);
-            return "file_not_accessible";
+            return "not_found";
+        }
+        if(filesize ($path) > 2500) {
+            return $this->margeit($path);
+        } else {
+            unlink($path);
+            return "file_not_compatible";
         }
     }
 
