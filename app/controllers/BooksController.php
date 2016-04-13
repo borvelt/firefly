@@ -21,7 +21,13 @@ class BooksController
 
         $dl = new Downloader();
 
-        $response = $dl->captchpasser($slim->request->post('fistcaptch'),$slim->request->post());
+        if ($slim->request->post('fistcaptch')) {
+            $captch = $slim->request->post('fistcaptch');
+        } else if ($captch = $slim->request->post('badcaptch');) {
+            $captch = $slim->request->post('badcaptch');
+        }
+
+        $response = $dl->captchpasser($captch, $slim->request->post());
 
         list($slim->responseBody, $slim->responseCode) = self::generateResponse($slim, $response);
 
