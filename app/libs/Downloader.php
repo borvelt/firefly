@@ -62,7 +62,8 @@ class Downloader {
         try {
             //$html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
             //exit ($html_str->getBody());
-            $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy'],'request_fulluri' => true,],];
+            echo $_SESSION['proxy'];
+            $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy']]];
             $cxContext = stream_context_create($aContext);
             $sFile = file_get_contents("http://www.google.com", false, $cxContext);
             exit(var_dump($sFile));
