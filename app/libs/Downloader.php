@@ -65,7 +65,7 @@ class Downloader {
             echo $_SESSION['proxy'];
             $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy']]];
             $cxContext = stream_context_create($aContext);
-            $sFile = file_get_contents("http://www.google.com");//, false, $cxContext);
+            $sFile = file_get_contents($url);//, false, $cxContext);
             exit(var_dump($sFile));
             $html = @HtmlDomParser::str_get_html($html_str->getBody());
         // } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
