@@ -60,17 +60,12 @@ class Downloader {
             }
         }
         try {
-            //$html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
-            //exit ($html_str->getBody());
-            echo $_SESSION['proxy'];
-            $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy']]];
-            $cxContext = stream_context_create($aContext);
-            $sFile = file_get_contents($url);//, false, $cxContext);
-            exit(var_dump($sFile));
+            // $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy']]];
+            // $cxContext = stream_context_create($aContext);
+            // $sFile = file_get_contents($url, false, $cxContext);
+            $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
             $html = @HtmlDomParser::str_get_html($html_str->getBody());
-        // } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
-        } catch (Exception $serverException) {
-            exit($serverException->getMessage());
+        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             return 'connection_error';
         }
         $reallink = @$html->find('iframe',0)->src;
