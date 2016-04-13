@@ -53,10 +53,7 @@ class Downloader {
             }
         }
         try {
-            // $aContext = ['http' => ['proxy' => 'tcp://'.$_SESSION['proxy']]];
-            // $cxContext = stream_context_create($aContext);
-            // $sFile = file_get_contents($url, false, $cxContext);
-            $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
+            $html_str = $this->client->request("GET", $url, ['proxy'=>$_SESSION['proxy']]);
             $html = @HtmlDomParser::str_get_html($html_str->getBody());
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             return 'connection_error';
@@ -64,7 +61,7 @@ class Downloader {
         $reallink = @$html->find('iframe',0)->src;
         if($reallink) {
             try {
-                $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
+                $html_str = $this->client->request("GET", $url, ['proxy'=>$_SESSION['proxy']]);
                 $iframhtml = @HtmlDomParser::str_get_html($html_str->getBody());
             } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
                 return 'connection_error';
@@ -202,6 +199,9 @@ class Downloader {
         if (!preg_match("#^https?:.+#", $url)) {
             $url = 'http:'.$url;
         }
+        // $aContext = ['http' => ['proxy' => $_SESSION['proxy']]];
+        // $cxContext = stream_context_create($aContext);
+        // $sFile = file_get_contents($url, false, $cxContext);
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
         $curl = curl_init($url);
@@ -317,7 +317,7 @@ class Downloader {
         //split it to array load randomly
         $proxys = explode("\n", $proxy);
         $random = rand(0,count($proxy));
-        return trim($proxys[$random]);
+        return 'tcp://'.trim($proxys[$random]);
     } 
 
     private function checkProxy () {
