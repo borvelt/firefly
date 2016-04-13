@@ -8,3 +8,4 @@
 *.DS_Store
 /composer.phar
 app/configs/Database.php
+app/libs/cookie_file1.txt
