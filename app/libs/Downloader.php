@@ -205,7 +205,10 @@ class Downloader {
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
         try {
-            $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
+            $jar = new \GuzzleHttp\Cookie\CookieJar();
+            $file = fopen(dirname(__FILE__) . '/cookie_file1.txt');
+            $jar->add($file);
+            $response = $this->client->request("GET", $url, ['save_to'=>$file, 'cookie'=>$jar, 'proxy'=>'tcp://'.$_SESSION['proxy']]);  
             exit($response->getBody());
             if(filesize ($path) > 2500) {
                 return $this->margeit($path);
