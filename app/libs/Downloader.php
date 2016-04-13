@@ -18,7 +18,7 @@ class Downloader {
 
         $this->client = new GuzzleHttp\Client();
 
-        $this->checkProxy () ;
+        //$this->checkProxy () ;
 
     }
 
@@ -199,23 +199,28 @@ class Downloader {
         if (!preg_match("#^https?:.+#", $url)) {
             $url = 'http:'.$url;
         }
-        // $aContext = ['http' => ['proxy' => $_SESSION['proxy']]];
-        // $cxContext = stream_context_create($aContext);
-        // $sFile = file_get_contents($url, false, $cxContext);
         $file = fopen(Config::app('webDirectory') . 'download/' . $filename, 'w+');
         $path = Config::app('webDirectory') . 'download/' . $filename;
-        $curl = curl_init($url);
-        curl_setopt_array($curl, [
-            CURLOPT_URL            => $url,
-            CURLOPT_BINARYTRANSFER => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_FILE           => $file,
-            CURLOPT_TIMEOUT        => 150,
-            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
-            CURLOPT_COOKIEFILE     => dirname ( __FILE__ ).'./cookie_file1.txt',
-            CURLOPT_PROXY          => $_SESSION["proxy"]
-        ]);
-        $response = curl_exec($curl);
+        if (strpos($url, 'http://libgen.io') !== false) {
+            try {
+                $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>$_SESSION['proxy']]);
+            } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
+                $response = false;
+            }
+        } else {
+            $curl = curl_init($url);
+            curl_setopt_array($curl, [
+                CURLOPT_URL            => $url,
+                CURLOPT_BINARYTRANSFER => 1,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_FILE           => $file,
+                CURLOPT_TIMEOUT        => 150,
+                CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
+                CURLOPT_COOKIEFILE     => dirname ( __FILE__ ).'./cookie_file1.txt',
+                CURLOPT_PROXY          => $_SESSION["proxy"]
+            ]);
+            $response = curl_exec($curl);            
+        }
         if ($response == false || $response != true || $response != 1) {
             unlink($path);
             return "not_found";
@@ -317,8 +322,11 @@ class Downloader {
         //split it to array load randomly
         $proxys = explode("\n", $proxy);
         $random = rand(0,count($proxy));
+        if (!$proxys[$random]) {
+            return null;
+        }
         return 'tcp://'.trim($proxys[$random]);
-    } 
+    }
 
     private function checkProxy () {
         if( !isset($_SESSION["proxy"]) &&!isset($_SESSION['times'])) {
