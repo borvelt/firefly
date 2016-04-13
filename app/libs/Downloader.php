@@ -18,15 +18,8 @@ class Downloader {
 
         $this->client = new GuzzleHttp\Client();
 
-        if( !isset($_SESSION["proxy"]) &&!isset($_SESSION['times'])) {
-            $_SESSION["proxy"] = $this->setProxy();
-            $_SESSION['time'] = time() + 10*60;
-        }
+        // $this->checkProxy () ;
 
-        if($_SESSION["time"] == time()) {
-            $_SESSION["proxy"] = $this->setProxy();
-            $_SESSION['time'] = time() + 10*60;
-        }
     }
 
     public static function limitByLink () {
@@ -316,5 +309,16 @@ class Downloader {
         $random = rand(0,count($proxy));
         return trim($proxys[$random]);
     } 
+
+    private function checkProxy () {
+        if( !isset($_SESSION["proxy"]) &&!isset($_SESSION['times'])) {
+            $_SESSION["proxy"] = $this->setProxy();
+            $_SESSION['time'] = time() + 10*60;
+        }
+        if($_SESSION["time"] == time()) {
+            $_SESSION["proxy"] = $this->setProxy();
+            $_SESSION['time'] = time() + 10*60;
+        }
+    }
 
 }
