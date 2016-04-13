@@ -18,7 +18,7 @@ class Downloader {
 
         $this->client = new GuzzleHttp\Client();
 
-        // $this->checkProxy () ;
+        $this->checkProxy () ;
 
     }
 
