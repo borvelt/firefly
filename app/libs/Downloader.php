@@ -57,6 +57,7 @@ class Downloader {
             // $cxContext = stream_context_create($aContext);
             // $sFile = file_get_contents($url, false, $cxContext);
             $html_str = $this->client->request("GET", $url, ['proxy'=>'tcp://'.$_SESSION['proxy']]);
+            exit($html_str->getBody());
             $html = @HtmlDomParser::str_get_html($html_str->getBody());
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             return 'connection_error';
@@ -118,7 +119,7 @@ class Downloader {
                 return $this->directsic($captch);
                 break;
             default:
-                return 'bad_captchaa';
+                return 'bad_captcha';
                 break;
         }
     }
