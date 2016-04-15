@@ -324,7 +324,7 @@ class Downloader {
         if (!$proxys[$random]) {
             return null;
         }
-        return 'http://'.trim($proxys[$random]);
+        return trim($proxys[$random]);
     }
 
     private function checkProxy () {
