@@ -326,6 +326,7 @@ class Downloader {
         if (!$proxys[$random]) {
             return null;
         }
+        exit(trim($proxys[$random]));
         return 'http://'.trim($proxys[$random]);
     }
 
