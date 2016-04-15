@@ -317,8 +317,6 @@ class Downloader {
     }
 
     private function setProxy () {
-        //download http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=350&ports=8080&anon=4
-        // $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&uptime=100&ports=8080&type=s");
         $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&type=h&maxtime=300&anon=34");
         //split it to array load randomly
         $proxys = explode("\n", $proxy);
@@ -326,7 +324,6 @@ class Downloader {
         if (!$proxys[$random]) {
             return null;
         }
-        exit(trim($proxys[$random]));
         return 'http://'.trim($proxys[$random]);
     }
 
