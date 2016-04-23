@@ -243,7 +243,8 @@ class Downloader {
         curl_setopt($curl, CURLOPT_PROXY, $_SESSION["proxy"]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_exec($curl);
+        $response = curl_exec($curl);
+        //exit(var_dump($response));
         if (curl_error($curl)) {
             return "not_found";
         }
@@ -256,7 +257,7 @@ class Downloader {
         if(!file_exists($filename)) {
             $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\""];
             $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"'];
-            system("zip --junk-paths -P http://motarjeminiran.com " . str_replace($skip, $replace, $filename) . " ". str_replace($skip, $replace, $pdf));
+            system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($skip, $replace, $filename) . " ". str_replace($skip, $replace, $pdf));
             ob_clean();
         }
         return ['filename' => $filename, 'url' => $this->url];
