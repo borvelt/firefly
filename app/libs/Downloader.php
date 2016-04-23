@@ -318,14 +318,15 @@ class Downloader {
     }
 
     private function setProxy () {
-        $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&type=h&maxtime=300&anon=34");
-        //split it to array load randomly
-        $proxys = explode("\n", $proxy);
-        $random = rand(0,count($proxy));
-        if (!$proxys[$random]) {
-            return null;
-        }
-        return 'http://'.trim($proxys[$random]);
+        // $proxy = file_get_contents("http://hideme.ru/api/proxylist.php?out=plain&code=973164094&type=h&maxtime=300&anon=34");
+        // //split it to array load randomly
+        // $proxys = explode("\n", $proxy);
+        // $random = rand(0,count($proxy));
+        // if (!$proxys[$random]) {
+        //     return null;
+        // }
+        // return 'https://'.trim($proxys[$random]);
+        return 'socks5://127.0.0.1:9050';
     }
 
     private function checkProxy () {
