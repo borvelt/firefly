@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.DIRECTORY_SEPARATOR.'../vendor/autoload.php';
+
+error_reporting(1);
+
+try {
+	echo "Testing By GuzzleHttp: ";
+    $client = new GuzzleHttp\Client();
+	$res = $client->request("GET", "http://www.mkadiri.com/my_ip.php",['proxy'=>'socks5://127.0.0.1:9050']);
+	echo $res->getBody();
+	echo "\nTesting By cURL: ";
+	echo call("http://www.mkadiri.com/my_ip.php")."\n";
+} catch (Exception $e) {
+	echo $e->getMessage() ;
+}
+
+function call ($url) {
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_TIMEOUT, 60); 
+	curl_setopt($curl, CURLOPT_HTTPGET, 1);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($curl, CURLOPT_PROXY, 'socks5://127.0.0.1:9050');
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, TRUE);
+	return curl_exec($curl);
+}
