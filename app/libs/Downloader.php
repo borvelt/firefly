@@ -16,7 +16,7 @@ class Downloader {
             $this->url = $url;
         }
 
-        $this->client = new GuzzleHttp\Client();
+        $this->client = new GuzzleHttp\Client(['timeout'  => 3600]);
 
         $this->checkProxy () ;
 
