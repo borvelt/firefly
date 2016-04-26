@@ -1,7 +1,7 @@
 <?php
 
 define ("DEBUG", true);
-define ("TRACE_BACK", false);
+define ("TRACE_BACK", true);
 define ("ERROR_STRING", 'با عرض پوزش اختلالی در سیستم به وجود آمده است، خطای رخ داده شده به اطلاع مدیر خواهد رسید.');
 
 error_reporting(0);
