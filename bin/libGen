@@ -20,7 +20,6 @@ try {
             $url .= "&limit1=" . $first_strike*1000 . "&limit2=1000";
 echo $url."\n";
             $res = $client->request("GET", $url);
-exit($res->getBody());
             $received_data = json_decode($res->getBody(),true);
             if (count($received_data) < 1000 && count($received_data) != 0) {
                 $last_received_data_item = end($received_data);
