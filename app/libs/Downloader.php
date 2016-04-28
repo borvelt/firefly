@@ -255,8 +255,8 @@ class Downloader {
         $pdf = Config::app('webDirectory').'download/' . basename($file);
         $filename = Config::app('webDirectory').'download/' . basename($file).'.zip';
         if(!file_exists($filename)) {
-            $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\""];
-            $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"'];
+            $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\"","."];
+            $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"', "\."];
             system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($skip, $replace, $filename) . " ". str_replace($skip, $replace, $pdf));
             ob_clean();
         }
