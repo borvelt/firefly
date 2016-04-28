@@ -190,7 +190,7 @@ class Downloader {
         if (!file_exists(Config::app('webDirectory') . 'download/')) {
             mkdir(Config::app('webDirectory') . 'download/' , 0755, true);
         }
-        $filename = str_replace($this->skip, $this->replace, $filename);
+        // $filename = str_replace($this->skip, $this->replace, $filename);
         if (file_exists(Config::app('webDirectory') . 'download/' . $filename)) {
             $path = Config::app('webDirectory') . 'download/' . $filename;
             if (filesize($path) > 2500) {
@@ -258,7 +258,8 @@ class Downloader {
         $pdf = Config::app('webDirectory').'download/' . basename($file);
         $filename = Config::app('webDirectory').'download/' . basename($file).'.zip';
         if(!file_exists($filename)) {
-            system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($this->skip, $this->replace, $filename) . " ". str_replace($this->skip, $this->replace, $pdf));
+            // system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($this->skip, $this->replace, $filename) . " ". str_replace($this->skip, $this->replace, $pdf));
+            system("zip --junk-paths -P www.motarjeminiran.com " . $filename . " ". $pdf);
             ob_clean();
         }
         return ['filename' => $filename, 'url' => $this->url];
