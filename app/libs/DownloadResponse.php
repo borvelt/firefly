@@ -2,8 +2,7 @@
 
 class DownloadResponse
 {
-    public static function responseAsImage($path)
-    {
+    public static function responseAsImage($path) {
         ob_clean();
         $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\"","."];
         $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"', "\."];
