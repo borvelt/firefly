@@ -6,7 +6,7 @@ class DownloadResponse
     {
         ob_clean();
         header("Content-Type: application/zip");
-        header("Content-Disposition: attachment; filename='" . addslashes(basename($path)) . "'");
+        header("Content-Disposition: attachment; filename='" . stripcslashes(basename($path)) . "'");
         header("Content-Length: " . filesize($path));
         readfile($path);
         exit;
