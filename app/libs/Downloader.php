@@ -7,6 +7,8 @@ class Downloader {
     private static $limitDownload = 100;
     private $url = null;
     private $client;
+    private $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\"","."];
+    private $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"', "\."];
 
     public function __construct ($url = null) {
         if (is_null($url)) {
@@ -179,7 +181,7 @@ class Downloader {
 
     private function download ($url) {
         $filename = urldecode(basename($url));
-        if(strpos($filename, 'md5') !== false && strpos($url, 'http://libgen.io') !== false) {
+        if (strpos($filename, 'md5') !== false && strpos($url, 'http://libgen.io') !== false) {
             $filename = $this->getFileNameFromUrl($url);
         }
         if (strlen($filename) >= 2000) {
@@ -188,9 +190,10 @@ class Downloader {
         if (!file_exists(Config::app('webDirectory') . 'download/')) {
             mkdir(Config::app('webDirectory') . 'download/' , 0755, true);
         }
+        $filename = str_replace($this->skip, $this->replace, $filename);
         if (file_exists(Config::app('webDirectory') . 'download/' . $filename)) {
             $path = Config::app('webDirectory') . 'download/' . $filename;
-            if(filesize($path) > 2500) {
+            if (filesize($path) > 2500) {
                 return $this->zipit($path);
             } else {
                 unlink($path);
@@ -255,9 +258,7 @@ class Downloader {
         $pdf = Config::app('webDirectory').'download/' . basename($file);
         $filename = Config::app('webDirectory').'download/' . basename($file).'.zip';
         if(!file_exists($filename)) {
-            $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\"","."];
-            $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"', "\."];
-            system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($skip, $replace, $filename) . " ". str_replace($skip, $replace, $pdf));
+            system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($this->skip, $this->replace, $filename) . " ". str_replace($this->skip, $this->replace, $pdf));
             ob_clean();
         }
         return ['filename' => $filename, 'url' => $this->url];
