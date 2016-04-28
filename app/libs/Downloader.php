@@ -259,7 +259,7 @@ class Downloader {
         $filename = Config::app('webDirectory').'download/' . basename($file).'.zip';
         if(!file_exists($filename)) {
             // system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($this->skip, $this->replace, $filename) . " ". str_replace($this->skip, $this->replace, $pdf));
-            exit("zip --junk-paths -P www.motarjeminiran.com " . $filename . " ". $pdf);
+            // exit("zip --junk-paths -P www.motarjeminiran.com " . $filename . " ". $pdf);
             system("zip --junk-paths -P www.motarjeminiran.com " . $filename . " ". $pdf);
             ob_clean();
         }
