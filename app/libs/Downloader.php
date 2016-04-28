@@ -190,7 +190,7 @@ class Downloader {
         if (!file_exists(Config::app('webDirectory') . 'download/')) {
             mkdir(Config::app('webDirectory') . 'download/' , 0755, true);
         }
-        // $filename = str_replace($this->skip, $this->replace, $filename);
+        $filename = str_replace($this->skip, $this->replace, $filename);
         if (file_exists(Config::app('webDirectory') . 'download/' . $filename)) {
             $path = Config::app('webDirectory') . 'download/' . $filename;
             if (filesize($path) > 2500) {
