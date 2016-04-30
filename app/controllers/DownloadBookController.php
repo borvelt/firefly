@@ -9,7 +9,7 @@ class DownloadBookController {
         $generation_time = $book_name[2];
         $ip = $book_name[0];
         $book_name = $book_name[1];
-        $is_downloaded = Download::where('download_key', $slim->uid)->first();
+        // $is_downloaded = Download::where('download_key', $slim->uid)->first();
         if(time() - $generation_time > 300) {
             halt_app(404, null, 'link_destroyed');
         }
