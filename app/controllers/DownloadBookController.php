@@ -10,7 +10,7 @@ class DownloadBookController {
         $ip = $book_name[0];
         $book_name = $book_name[1];
         $is_downloaded = Download::where('download_key', $slim->uid)->first();
-        if($is_downloaded) {
+        if(time() - $generation_time > 300) {
             halt_app(404, null, 'link_destroyed');
         }
         if ( file_exists(Config::app("webDirectory") . 'download/' . $book_name) ) {
