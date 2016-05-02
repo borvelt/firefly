@@ -5,12 +5,14 @@ require __DIR__.DIRECTORY_SEPARATOR.'../vendor/autoload.php';
 
 $count_schedule = Schedule::all()->count();
 
+$limitation = 100;
+
 if (!$count_schedule) {
-    $last_schedule = Schedule::create(['bulk'=>0, 'limitation'=>70]);
+    $last_schedule = Schedule::create(['bulk'=>0, 'limitation'=>$limitation]);
 } else {
     $last_schedule = Schedule::orderBy('created_at', 'DESC')->first();
     if ($last_schedule->is_done) {
-        $last_schedule = Schedule::create(['bulk'=>$last_schedule->bulk+1, 'limitation'=>70]);
+        $last_schedule = Schedule::create(['bulk'=>$last_schedule->bulk+1, 'limitation'=>$limitation]);
     }
 }
 
