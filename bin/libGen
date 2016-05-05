@@ -88,7 +88,7 @@ try {
     }
 
 } catch (Exception $e) {
-    echo $e->getMessage();
+    echo $e->getMessage() . '(Line:' . $e->getLine() . ')';
 }
 
 function myMassAssignment (&$new_book, $book_info) {
