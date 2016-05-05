@@ -18,11 +18,12 @@ try {
             $url = "http://libgen.io/json.php?fields=ID&mode=last";
             $url .= "&timefirst=". date('Y-m-d', time() - 86400 * $date_strike);
             $url .= "&limit1=" . $first_strike * 1000 . "&limit2=1000";
+            echo $url . "\n";
             $res = $client->request("GET", $url,['proxy'=>'socks5://127.0.0.1:9050']);
             $received_data = json_decode($res->getBody(),true);
             if (count($received_data) < 1000 && count($received_data) != 0) {
                 $last_received_data_item = end($received_data);
-                $last_book_id = $last_received_data_item["ID"];
+                $last_book_id = $last_received_data_item["id"];
                 break;
             }
             $first_strike++;
