@@ -81,7 +81,7 @@ class BooksController
         $offset = $slim->request->get ('page');
         $limitation = !is_null($limitation) ? $limitation : 50;
         $offset = !is_null($offset) ? $offset : 0;
-        $downloads_count = Download::all()->count();
+        $downloads_count = Download::count();
         $downloads = Download::orderBy('created_at', 'DESC')->skip($limitation * $offset)->take ($limitation)->get()->toArray();
         $slim->responseBody = ['downloads'=>$downloads, 'total'=>$downloads_count];
     }
@@ -91,7 +91,7 @@ class BooksController
         $offset = $slim->request->get ('page');
         $limitation = !is_null($limitation) ? $limitation : 50;
         $offset = !is_null($offset) ? $offset : 0;
-        $reports_count = Report::all()->groupBy('book')->count();
+        $reports_count = Report::groupBy('book')->count();
         $db = Bootstrap::Eloquent()->getConnection();
         $reports = $db->table('reports')->select('*', $db->raw('count(*) as total'))->groupBy('book')->join('books','book','=','books.id')->skip($limitation * $offset)->take ($limitation)->get();
         $slim->responseBody = ['reports'=>$reports, 'total'=>$reports_count];
