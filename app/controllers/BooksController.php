@@ -123,5 +123,36 @@ class BooksController
         $slim->responseMessage = "operation_success";
     }
 
-
+    public function getCover ($slim) {
+      $md5 = $slim->md5;
+      $path = Config::app('webDirectory').'covers/' . $md5;
+      if(file_exists($path)) {
+        $fp = file_get_contents ($path);
+      } else {
+        $url = "http://libgen.io/covers/0/".$md5;
+        $file = fopen(Config::app('webDirectory') . 'covers/' . $md5, 'w+');
+        $client = new GuzzleHttp\Client(['timeout'  => 3600]);
+        try {
+            $fp = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'127.0.0.1:9050']);
+            $fp = file_get_contents ($path);
+        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
+            $fp = false;
+        }
+      }
+      if($fp) {
+        header("Content-Type: image/jpeg");
+        header("Content-Length: " . filesize($path));
+        echo $fp;
+        exit;
+      } else {
+        $slim->responseMessage = 'cover_not_found';
+        $slim->responseCode = 404;
+      }
+      //   ob_clean();
+      //   header("Content-Type: image/jpeg");
+      //   header("Content-Length: " . filesize($path));
+      //   echo $fp;
+      //   exit;
+      // }
+    }
 }

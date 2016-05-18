@@ -12,6 +12,7 @@ return [
         $seeds[] = ['group'=> 'books', 'uri_pattern'=> '/books/report|POST',];
         $seeds[] = ['group'=> 'books', 'uri_pattern'=> '/books/report/:report_id|DELETE',];
         $seeds[] = ['group'=> 'books', 'uri_pattern'=> '/books/block|POST',];
+        $seeds[] = ['group'=> 'books', 'uri_pattern'=> '/books/cover/:cover_md5|GET',];
 
         $seeds[] = ['group'=> 'download', 'uri_pattern'=> '/download/:uid|GET',];
 

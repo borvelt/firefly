@@ -40,6 +40,13 @@ $slim->group('/books', 'Auth::check', function () use ($slim)
         $slim->render([]);
     })->name('getBookByLink');
 
+    $slim->GET('/cover/:cover_md5', function ($cover_md5) use ($slim)
+    {
+        $slim->cover_md5 = $cover_md5;
+        Controller::call('BooksController', 'getCover');
+        $slim->render([]);
+    })->name('getCovers');
+
     $slim->GET('/downloaded', function () use ($slim)
     {
         Controller::call('BooksController', 'downloadedBooks');
