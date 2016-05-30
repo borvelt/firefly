@@ -132,6 +132,7 @@ class BooksController
     }
 
     public function getCover ($slim) {
+      $fp = false;
       $md5 = $slim->cover_md5 . ".jpg";
       $path = Config::app('webDirectory').'covers/' . $md5;
       if(file_exists($path)) {
@@ -139,14 +140,15 @@ class BooksController
       } else {
         $saved_md5 = Book::where('coverURL','like','%' . $slim->cover_md5 . '%')->first();
         $url = "http://libgen.io/covers/".$saved_md5->coverURL;
-        $file = fopen(Config::app('webDirectory') . 'covers/' . $md5, 'w+');
         $client = new GuzzleHttp\Client(['timeout'  => 3600]);
         try {
+          $file = fopen(Config::app('webDirectory') . 'covers/' . $md5, 'w+');
           $fp = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'127.0.0.1:9050']);
           $fp = file_get_contents ($path);
-          exit(var_export($fp));
         } catch (Exception $serverException) {
-          $fp = false;
+          $slim->responseMessage = $serverException->getMessage();
+          $slim->responseCode = 404;
+          return ;
         }
       }
       if($fp) {
