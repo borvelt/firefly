@@ -114,7 +114,7 @@ function myMassAssignment (&$new_book, $book_info) {
     $new_book->UDC = isset($book_info['udc']) ? $book_info['udc'] : '';
     $new_book->LBC = isset($book_info['lbc']) ? $book_info['lbc'] : '';
     $new_book->DDC = isset($book_info['ddc']) ? $book_info['ddc'] : '';
-    $new_book->LCC = isset($book_info['lcc']) ? $book_info['LCC'] : '';
+    $new_book->LCC = isset($book_info['lcc']) ? $book_info['lcc'] : '';
     $new_book->doi = isset($book_info['doi']) ? $book_info['doi'] : '';
     $new_book->googleBookId = isset($book_info['googlebookid']) ? $book_info['googlebookid'] : '';
     $new_book->openLibraryID = isset($book_info['openlibraryid']) ? $book_info['openlibraryid'] : '';

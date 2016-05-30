@@ -27,12 +27,12 @@ class CreateBooksTable extends Migration
             $table->string('series');
             $table->string('periodical');
             $table->string('author');
-            $table->string('year');
+            $table->integer('year');
             $table->string('edition');
             $table->string('publisher');
             $table->string('city');
-            $table->string('pages');
-            $table->string('pagesInFile');
+            $table->integer('pages');
+            $table->integer('pagesInFile');
             $table->string('language');
             $table->string('topic');
             $table->string('library');
@@ -56,7 +56,7 @@ class CreateBooksTable extends Migration
             $table->string('scanned');
             $table->string('bookmarked');
             $table->string('searchable');
-            $table->string('filesize');
+            $table->integer('filesize');
             $table->string('extension');
             $table->string('md5');
             $table->string('generic');
