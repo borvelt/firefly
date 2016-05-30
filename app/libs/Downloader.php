@@ -80,7 +80,15 @@ class Downloader {
             }
         } else {
             if(strpos($aa = $this->checklib($url),'http://libgen.io/') !== false) {
-                $dlib	= @$html->find('a',0)->href;
+                $dlib = null;
+                foreach($html->find('a') as $element) {
+                    if (strpos($element->href,'/get.php?md5=') !== false) {
+                        $dlib = $element->href;
+                    }
+                }
+                if (is_null ($dlib)) {
+                    return 'try_again';
+                }
                 $dlib	= str_replace('../','',$dlib);
                 return $this->download('http://libgen.io'.$dlib);
             } else {
@@ -222,7 +230,7 @@ class Downloader {
                 CURLOPT_COOKIEFILE     => dirname ( __FILE__ ).'./cookie_file1.txt',
                 CURLOPT_PROXY          => $_SESSION["proxy"]
             ]);
-            $response = curl_exec($curl);            
+            $response = curl_exec($curl);
         }
         if ($response == false || $response != true || $response != 1) {
             unlink($path);

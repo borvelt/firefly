@@ -46,7 +46,7 @@ class Config
         'Access-Control-Allow-Credentials'=>'true',
         'JSON-Content-Type'=>'application/json; charset=utf-8',
     );
-    
+
     private static $database = [
         'driver' => 'mysql',
         'host' => '127.0.0.1',

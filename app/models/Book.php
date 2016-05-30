@@ -14,4 +14,9 @@ class Book extends Model
   		return jdate("Y-m-d H:i:s", strtotime($this->timeAdded));
   	}
 
+    public function getTableColumns() {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
+
+
 }

@@ -63,11 +63,11 @@ try {
         $books = json_decode($res->getBody(),true);
         $save_response[] = $books;
         foreach ($books as $book_info) {
-            if ($old_book = Book::whereBookId($book_info["ID"])->first()) {
-                if(strtotime($old_book->timeLastModified) < strtotime($book_info["TimeLastModified"])) {
+            if ($old_book = Book::whereBookId($book_info["id"])->first()) {
+                if(strtotime($old_book->timeLastModified) < strtotime($book_info["timelastmodified"])) {
                     myMassAssignment($old_book, $book_info);
                     $old_book->save();
-                    remove_book ($book_info['MD5']);
+                    remove_book ($book_info['md5']);
                 }
             } else {
                 $new_book = new Book();
@@ -93,52 +93,52 @@ try {
 }
 
 function myMassAssignment (&$new_book, $book_info) {
-    $new_book->book_id = isset($book_info['ID']) ? $book_info['ID'] : '';
-    $new_book->title = isset($book_info['Title']) ? $book_info['Title'] : '';
-    $new_book->volumeInfo = isset($book_info['VolumeInfo']) ? $book_info['VolumeInfo'] : '';
-    $new_book->series = isset($book_info['Series']) ? $book_info['Series'] : '';
-    $new_book->periodical = isset($book_info['Periodical']) ? $book_info['Periodical'] : '';
-    $new_book->author = isset($book_info['Author']) ? $book_info['Author'] : '';
-    $new_book->year = isset($book_info['Year']) ? $book_info['Year'] : '';
-    $new_book->publisher = isset($book_info['Publisher']) ? $book_info['Publisher'] : '';
-    $new_book->city = isset($book_info['City']) ? $book_info['City'] : '';
-    $new_book->pages = isset($book_info['Pages']) ? $book_info['Pages'] : '';
-    $new_book->pagesInFile = isset($book_info['PagesInFile']) ? $book_info['PagesInFile'] : '';
-    $new_book->language = isset($book_info['Language']) ? $book_info['Language'] : '';
-    $new_book->topic = isset($book_info['Topic']) ? $book_info['Topic'] : '';
-    $new_book->library = isset($book_info['Library']) ? $book_info['Library'] : '';
-    $new_book->issue = isset($book_info['Issue']) ? $book_info['Issue'] : '';
-    $new_book->ISSN = isset($book_info['ISSN']) ? $book_info['ISSN'] : '';
-    $new_book->identifier = isset($book_info['Identifier']) ? $book_info['Identifier'] : '';
-    $new_book->ASIN = isset($book_info['ASIN']) ? $book_info['ASIN'] : '';
-    $new_book->UDC = isset($book_info['UDC']) ? $book_info['UDC'] : '';
-    $new_book->LBC = isset($book_info['LBC']) ? $book_info['LBC'] : '';
-    $new_book->DDC = isset($book_info['DDC']) ? $book_info['DDC'] : '';
-    $new_book->LCC = isset($book_info['LCC']) ? $book_info['LCC'] : '';
-    $new_book->doi = isset($book_info['Doi']) ? $book_info['Doi'] : '';
-    $new_book->googleBookId = isset($book_info['Googlebookid']) ? $book_info['Googlebookid'] : '';
-    $new_book->openLibraryID = isset($book_info['OpenLibraryID']) ? $book_info['OpenLibraryID'] : '';
-    $new_book->commentary = isset($book_info['Commentary']) ? $book_info['Commentary'] : '';
-    $new_book->DPI = isset($book_info['DPI']) ? $book_info['DPI'] : '';
-    $new_book->color = isset($book_info['Color']) ? $book_info['Color'] : '';
-    $new_book->cleaned = isset($book_info['Cleaned']) ? $book_info['Cleaned'] : '';
-    $new_book->orientation = isset($book_info['Orientation']) ? $book_info['Orientation'] : '';
-    $new_book->paginated = isset($book_info['Paginated']) ? $book_info['Paginated'] : '';
-    $new_book->scanned = isset($book_info['Scanned']) ? $book_info['Scanned'] : '';
-    $new_book->bookmarked = isset($book_info['Bookmarked']) ? $book_info['Bookmarked'] : '';
-    $new_book->searchable = isset($book_info['Searchable']) ? $book_info['Searchable'] : '';
-    $new_book->filesize = isset($book_info['Filesize']) ? $book_info['Filesize'] : '';
-    $new_book->extension = isset($book_info['Extension']) ? $book_info['Extension'] : '';
-    $new_book->MD5 = isset($book_info['MD5']) ? $book_info['MD5'] : '';
-    $new_book->generic = isset($book_info['Generic']) ? $book_info['Generic'] : '';
-    $new_book->filename = isset($book_info['Filename']) ? $book_info['Filename'] : '';
-    $new_book->locator = isset($book_info['Locator']) ? $book_info['Locator'] : '';
-    $new_book->local = isset($book_info['Local']) ? $book_info['Local'] : '';
-    $new_book->timeAdded = isset($book_info['TimeAdded']) ? $book_info['TimeAdded'] : '';
-    $new_book->timeLastModified = isset($book_info['TimeLastModified']) ? $book_info['TimeLastModified'] : '';
-    $new_book->coverURL = isset($book_info['Coverurl']) ? $book_info['Coverurl'] : '';
-    $new_book->tags = isset($book_info['Tags']) ? $book_info['Tags'] : '';
-    $new_book->identifierWODash = isset($book_info['IdentifierWODash']) ? $book_info['IdentifierWODash'] : '';
+    $new_book->book_id = isset($book_info['id']) ? $book_info['id'] : '';
+    $new_book->title = isset($book_info['title']) ? $book_info['title'] : '';
+    $new_book->volumeInfo = isset($book_info['volumeInfo']) ? $book_info['volumeInfo'] : '';
+    $new_book->series = isset($book_info['series']) ? $book_info['series'] : '';
+    $new_book->periodical = isset($book_info['periodical']) ? $book_info['periodical'] : '';
+    $new_book->author = isset($book_info['author']) ? $book_info['author'] : '';
+    $new_book->year = isset($book_info['year']) ? $book_info['year'] : '';
+    $new_book->publisher = isset($book_info['publisher']) ? $book_info['publisher'] : '';
+    $new_book->city = isset($book_info['city']) ? $book_info['city'] : '';
+    $new_book->pages = isset($book_info['pages']) ? $book_info['pages'] : '';
+    $new_book->pagesInFile = isset($book_info['pagesinfile']) ? $book_info['pagesinfile'] : '';
+    $new_book->language = isset($book_info['language']) ? $book_info['language'] : '';
+    $new_book->topic = isset($book_info['topic']) ? $book_info['topic'] : '';
+    $new_book->library = isset($book_info['library']) ? $book_info['library'] : '';
+    $new_book->issue = isset($book_info['issue']) ? $book_info['issue'] : '';
+    $new_book->ISSN = isset($book_info['issn']) ? $book_info['issn'] : '';
+    $new_book->identifier = isset($book_info['identifier']) ? $book_info['identifier'] : '';
+    $new_book->ASIN = isset($book_info['asin']) ? $book_info['asin'] : '';
+    $new_book->UDC = isset($book_info['udc']) ? $book_info['udc'] : '';
+    $new_book->LBC = isset($book_info['lbc']) ? $book_info['lbc'] : '';
+    $new_book->DDC = isset($book_info['ddc']) ? $book_info['ddc'] : '';
+    $new_book->LCC = isset($book_info['lcc']) ? $book_info['LCC'] : '';
+    $new_book->doi = isset($book_info['doi']) ? $book_info['doi'] : '';
+    $new_book->googleBookId = isset($book_info['googlebookid']) ? $book_info['googlebookid'] : '';
+    $new_book->openLibraryID = isset($book_info['openlibraryid']) ? $book_info['openlibraryid'] : '';
+    $new_book->commentary = isset($book_info['commentary']) ? $book_info['commentary'] : '';
+    $new_book->DPI = isset($book_info['dpi']) ? $book_info['dpi'] : '';
+    $new_book->color = isset($book_info['color']) ? $book_info['color'] : '';
+    $new_book->cleaned = isset($book_info['cleaned']) ? $book_info['cleaned'] : '';
+    $new_book->orientation = isset($book_info['orientation']) ? $book_info['orientation'] : '';
+    $new_book->paginated = isset($book_info['paginated']) ? $book_info['paginated'] : '';
+    $new_book->scanned = isset($book_info['scanned']) ? $book_info['scanned'] : '';
+    $new_book->bookmarked = isset($book_info['bookmarked']) ? $book_info['bookmarked'] : '';
+    $new_book->searchable = isset($book_info['searchable']) ? $book_info['searchable'] : '';
+    $new_book->filesize = isset($book_info['filesize']) ? $book_info['filesize'] : '';
+    $new_book->extension = isset($book_info['extension']) ? $book_info['extension'] : '';
+    $new_book->MD5 = isset($book_info['md5']) ? $book_info['md5'] : '';
+    $new_book->generic = isset($book_info['generic']) ? $book_info['generic'] : '';
+    $new_book->filename = isset($book_info['filename']) ? $book_info['filename'] : '';
+    $new_book->locator = isset($book_info['locator']) ? $book_info['locator'] : '';
+    $new_book->local = isset($book_info['local']) ? $book_info['local'] : '';
+    $new_book->timeAdded = isset($book_info['timeadded']) ? $book_info['timeadded'] : '';
+    $new_book->timeLastModified = isset($book_info['timelastmodified']) ? $book_info['timelastmodified'] : '';
+    $new_book->coverURL = isset($book_info['coverurl']) ? $book_info['coverurl'] : '';
+    $new_book->tags = isset($book_info['tags']) ? $book_info['tags'] : '';
+    $new_book->identifierWODash = isset($book_info['identifierwodash']) ? $book_info['identifierwodash'] : '';
 }
 
 function remove_book ($md5) {

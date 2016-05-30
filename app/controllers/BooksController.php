@@ -69,16 +69,24 @@ class BooksController
 
     public function searchBook ($slim) {
         $posted_data = $slim->request->post();
-        $slim->responseBody = $posted_data;
-        $books = Book::where('title','like','%'.$posted_data['book_name'].'%')->where('is_blocked',false);
+        $searchType = (isset($posted_data['search-type'])) ? $posted_data['search-type'] : null;
+        $book = new Book();
+        if (!in_array($searchType, $book->getTableColumns())) {
+          $slim->responseCode = 400;
+          $slim->responseMessage = "bad_request";
+          return ;
+        }
+        $defaultOrderBy = isset($posted_data['search-order']) ? $posted_data['search-order'] : 'id' ;
+        $defaultSortBy = isset($posted_data['search-sort']) ? $posted_data['search-sort'] : 'ASC' ;
+        $books = $book->where($searchType, 'like', '%'.$posted_data['book_name'].'%')->where('is_blocked', false);
         $total_books = $books->count();
-        $books_array = $books->skip($posted_data['page'] * $posted_data['limitation'])->take($posted_data['limitation'])->get()->toArray();
-        $slim->responseBody = ['books'=>$books_array, 'total'=>$total_books];
+        $books_array = $books->skip($posted_data['page'] * $posted_data['limitation'])->take($posted_data['limitation'])->orderBy($defaultOrderBy, $defaultSortBy)->get()->toArray();
+        $slim->responseBody = ['books'=>$books_array, 'total'=>$total_books, 'searchBy'=> $posted_data['search-type'], 'orderBy'=> $defaultOrderBy, 'sort'=> $defaultSortBy];
     }
 
     public function downloadedBooks ($slim) {
-        $limitation = $slim->request->get ('limitation');
-        $offset = $slim->request->get ('page');
+        $limitation = $slim->request->get('limitation');
+        $offset = $slim->request->get('page');
         $limitation = !is_null($limitation) ? $limitation : 50;
         $offset = !is_null($offset) ? $offset : 0;
         $downloads_count = Download::count();
@@ -124,7 +132,7 @@ class BooksController
     }
 
     public function getCover ($slim) {
-      $md5 = $slim->md5;
+      $md5 = $slim->cover_md5 . ".jpg";
       $path = Config::app('webDirectory').'covers/' . $md5;
       if(file_exists($path)) {
         $fp = file_get_contents ($path);
@@ -133,10 +141,10 @@ class BooksController
         $file = fopen(Config::app('webDirectory') . 'covers/' . $md5, 'w+');
         $client = new GuzzleHttp\Client(['timeout'  => 3600]);
         try {
-            $fp = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'127.0.0.1:9050']);
-            $fp = file_get_contents ($path);
-        } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
-            $fp = false;
+          $fp = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'127.0.0.1:9050']);
+          $fp = file_get_contents ($path);
+        } catch (Exception $serverException) {
+          $fp = false;
         }
       }
       if($fp) {
@@ -145,14 +153,9 @@ class BooksController
         echo $fp;
         exit;
       } else {
+        @unlink($path);
         $slim->responseMessage = 'cover_not_found';
         $slim->responseCode = 404;
       }
-      //   ob_clean();
-      //   header("Content-Type: image/jpeg");
-      //   header("Content-Length: " . filesize($path));
-      //   echo $fp;
-      //   exit;
-      // }
     }
 }
