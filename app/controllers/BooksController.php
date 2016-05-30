@@ -132,7 +132,6 @@ class BooksController
     }
 
     public function getCover ($slim) {
-      $fp = false;
       $md5 = $slim->cover_md5 . ".jpg";
       $path = Config::app('webDirectory').'covers/' . $md5;
       if(file_exists($path)) {
@@ -143,12 +142,10 @@ class BooksController
         $client = new GuzzleHttp\Client(['timeout'  => 3600]);
         try {
           $file = fopen(Config::app('webDirectory') . 'covers/' . $md5, 'w+');
-          $fp = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'127.0.0.1:9050']);
+          $fp = $client->request("GET", $url, ['save_to'=>$file, 'proxy'=>'socks5://127.0.0.1:9050']);
           $fp = file_get_contents ($path);
         } catch (Exception $serverException) {
-          $slim->responseMessage = $serverException->getMessage();
-          $slim->responseCode = 404;
-          return ;
+          $fp = false;
         }
       }
       if($fp) {
