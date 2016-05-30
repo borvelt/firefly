@@ -139,6 +139,7 @@ class BooksController
       } else {
         $saved_md5 = Book::where('coverURL','like','%' . $slim->cover_md5 . '%')->first();
         $url = "http://libgen.io/covers/".$saved_md5->coverURL;
+        exit($url);
         $file = fopen(Config::app('webDirectory') . 'covers/' . $md5, 'w+');
         $client = new GuzzleHttp\Client(['timeout'  => 3600]);
         try {
