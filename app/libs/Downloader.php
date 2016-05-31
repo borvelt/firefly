@@ -44,12 +44,12 @@ class Downloader {
     public function captchaloader () {
         $pass = parse_url($this->url);
         if (isset($pass['query'])) {
-            $url = $pass['scheme'].'://'.$pass['host'].'.sci-hub.io'.$pass['path'].'?'.$pass['query'];
+            $url = $pass['scheme'].'://'.$pass['host'].'.sci-hub.bz'.$pass['path'].'?'.$pass['query'];
             if (strpos($url, "http://libgen.io") !== false) {
                 $url = "http://libgen.io".$pass['path'].'?'.$pass['query'];
             }
         } else {
-            $url = $pass['scheme'].'://'.$pass['host'].'.sci-hub.io'.$pass['path'];
+            $url = $pass['scheme'].'://'.$pass['host'].'.sci-hub.bz'.$pass['path'];
             if (strpos($url, "http://libgen.io") !== false) {
                 $url = "http://libgen.io".$pass['path'];
             }
@@ -100,7 +100,7 @@ class Downloader {
                     $geturl = $this->url;
                     return [
                         "type" => "badcaptch",
-                        "img" => "http://sci-hub.io" . $captchimg,
+                        "img" => "http://sci-hub.bz" . $captchimg,
                         "url" => $geturl,
                         "captchaId" => $captchid,
                     ];
@@ -169,7 +169,7 @@ class Downloader {
             )
         );
         $context  = stream_context_create($opts);
-        $file = file_get_contents('http://sci-hub.io/solve', false, $context);
+        $file = file_get_contents('http://sci-hub.bz/solve', false, $context);
         $html = @HtmlDomParser::str_get_html($file);
         if (@!$html->find('input[name=captchaId]',0)) {
             if(@$html->find('div[id=proxySelector]',0) ) {
