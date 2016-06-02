@@ -142,7 +142,7 @@ class Downloader {
         curl_setopt($curl, CURLOPT_COOKIEJAR, dirname ( __FILE__ ).'/cookie_file1.txt');
         curl_setopt($curl, CURLOPT_COOKIEFILE, dirname ( __FILE__ ).'/cookie_file1.txt');
         curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13');
-        curl_setopt($curl, CURLOPT_PROXY, $_SESSION["proxy"]);
+        // curl_setopt($curl, CURLOPT_PROXY, $_SESSION["proxy"]);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
         $captch = curl_exec($curl);
         $base64 = 'data:image/png;base64,' . base64_encode($captch);
