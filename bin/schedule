@@ -5,7 +5,7 @@ require __DIR__.DIRECTORY_SEPARATOR.'../vendor/autoload.php';
 
 $count_schedule = Schedule::count();
 
-$limitation = 10;
+$limitation = 70;
 
 if (!$count_schedule) {
     $last_schedule = Schedule::create(['bulk'=>0, 'limitation'=>$limitation]);
