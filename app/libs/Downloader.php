@@ -18,9 +18,11 @@ class Downloader {
             $this->url = $url;
         }
 
+        $this->url = trim($this->url);
+
         $this->client = new GuzzleHttp\Client(['timeout'  => 3600]);
 
-        $this->checkProxy () ;
+        // $this->checkProxy () ;
 
     }
 
@@ -53,6 +55,10 @@ class Downloader {
             if (strpos($url, "http://libgen.io") !== false) {
                 $url = "http://libgen.io".$pass['path'];
             }
+        }
+        $decision = $this->checkFileExist($url);
+        if (is_array($decision)){
+            return $decision;
         }
         try {
             $html_str = $this->client->request("GET", $url, ['proxy'=>$_SESSION['proxy']]);
@@ -188,19 +194,20 @@ class Downloader {
     }
 
     private function download ($url) {
-        $filename = urldecode(basename($url));
-        if (strpos($filename, 'md5') !== false && strpos($url, 'http://libgen.io') !== false) {
-            $filename = $this->getFileNameFromUrl($url);
-        }
-        if (strlen($filename) >= 2000) {
-            $filename =  substr($filename, 0, 10). "" . substr($filename, -5);
-        }
+        // $filename = urldecode(basename($url));
+        // if (strpos($filename, 'md5') !== false && strpos($url, 'http://libgen.io') !== false) {
+        //     $filename = $this->getFileNameFromUrl($url);
+        // }
+        // if (strlen($filename) >= 2000) {
+        //     $filename =  substr($filename, 0, 10). "" . substr($filename, -5);
+        // }
         if (!file_exists(Config::app('webDirectory') . 'download/')) {
             mkdir(Config::app('webDirectory') . 'download/' , 0755, true);
         }
-        // $filename = str_replace($this->skip, $this->replace, $filename);
-        if (file_exists(Config::app('webDirectory') . 'download/' . $filename)) {
-            $path = Config::app('webDirectory') . 'download/' . $filename;
+        $filename = hash('ripemd128', $this->url);
+        $founded_filename = glob(Config::app('webDirectory') . 'download/' . $filename."*")[0];
+        if ($founded_filename) {
+            $path = Config::app('webDirectory') . 'download/' . $founded_filename;
             if (filesize($path) > 2500) {
                 return $this->zipit($path);
             } else {
@@ -215,6 +222,11 @@ class Downloader {
         if (strpos($url, 'http://libgen.io') !== false) {
             try {
                 $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>$_SESSION['proxy']]);
+                $original_filename = str_replace('"', '', end(explode('=',$response->getHeaders()['Content-Disposition'][0])));
+                $extension = pathinfo($original_filename, PATHINFO_EXTENSION);
+                $new_path = $path.'.'.$extension;
+                rename($path, $new_path);
+                $path = $new_path;
             } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
                 $response = false;
             }
@@ -223,7 +235,9 @@ class Downloader {
             curl_setopt_array($curl, [
                 CURLOPT_URL            => $url,
                 CURLOPT_BINARYTRANSFER => 1,
+                CURLOPT_VERBOSE => 1,
                 CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_HEADER => true ,
                 CURLOPT_FILE           => $file,
                 CURLOPT_TIMEOUT        => 150,
                 CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
@@ -231,6 +245,11 @@ class Downloader {
                 CURLOPT_PROXY          => $_SESSION["proxy"]
             ]);
             $response = curl_exec($curl);
+            $original_filename = urldecode(basename($url));
+//            $extension = pathinfo($original_filename, PATHINFO_EXTENSION);
+            $new_path = $path.'(=)'.$original_filename;
+            rename($path, $new_path);
+            $path = $new_path;
         }
         if ($response == false || $response != true || $response != 1) {
             unlink($path);
@@ -346,6 +365,31 @@ class Downloader {
         if($_SESSION["time"] == time()) {
             $_SESSION["proxy"] = $this->setProxy();
             $_SESSION['time'] = time() + 10*60;
+        }
+    }
+
+    private function checkFileExist ($url) {
+        $filename = hash('ripemd128', $this->url);
+        $founded_filename = glob(Config::app('webDirectory') . 'download/' . $filename."*");
+        $zip_file_founded = $doc_file_founded = false;
+        $zip_file = $doc_file = null;
+        if(!count($founded_filename)) {
+            return false;
+        }
+        foreach($founded_filename as $file) {
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            if ($extension == 'zip') {
+                $zip_file_founded = true;
+                $zip_file = $file;
+            } else {
+                $doc_file_founded = true;
+                $doc_file = $file;
+            }
+        }
+        if ($zip_file_founded) {
+            return ['filename' => $zip_file, 'url' => $this->url];
+        } else {
+            return $this->zipit($doc_file);
         }
     }
 

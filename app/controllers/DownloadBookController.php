@@ -7,9 +7,8 @@ class DownloadBookController {
         $book_name = explode("#",$decrypt_name);
         $book_url = $book_name[3];
         $generation_time = $book_name[2];
-        $ip = $book_name[0];
+//        $ip = $book_name[0];
         $book_name = $book_name[1];
-        // $is_downloaded = Download::where('download_key', $slim->uid)->first();
         if(time() - $generation_time > 900) {
             halt_app(404, null, 'link_destroyed');
         }
@@ -27,9 +26,24 @@ class DownloadBookController {
                 }
                 $download->save();
             }
-            DownloadResponse::responseAsImage(Config::app("webDirectory") . 'download/' . $book_name);
+            $filename = self::getFileName($book_name, $book_url);
+            DownloadResponse::responseAsImage(Config::app("webDirectory") . 'download/' . $book_name, $filename);
         } else {
            halt_app(404, null, 'not_found');
+        }
+    }
+
+    public function getFileName($name, $url) {
+        $md5_pos = strpos($url, 'md5=');
+        if ( $md5_pos !== false && strpos($url, 'http://libgen.io') !== false) {
+            $md5 = substr($url,29);
+            $book = Book::where('md5','=',$md5)->first();
+            if(!$book) {
+                return $md5. '.'. pathinfo($name, PATHINFO_EXTENSION);
+            }
+            return $book->title . '- ' . $book->author . '- ' . $book->year. '.'. pathinfo($name, PATHINFO_EXTENSION);
+        } else {
+            return end(explode('(=)', $name));
         }
     }
 
