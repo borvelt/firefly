@@ -22,7 +22,7 @@ class Downloader {
         if(!isset($GLOBALS['_SESSION'])){
             $GLOBALS['_SESSION']['proxy'] = null;
         }
-        // $this->checkProxy () ;
+        $this->checkProxy () ;
 
     }
 
