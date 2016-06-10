@@ -4,6 +4,8 @@
 /web/system/
 /web/uploads/
 /app/cache/
+/bin/.db
+/bin/.int
 *.log
 *.DS_Store
 /composer.phar
