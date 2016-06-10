@@ -10,18 +10,18 @@ class Downloader {
     private $skip = [" ", "-", ",", "&", "*", "(", ")", "#", "@", "!", "~", "=", "+", "^", "%", "$", "/", "\\", "'", "\"","."];
     private $replace = ["\ ", "\-", "\,", "\&", "\*", "\(", "\)", "\#", "\@", "\!", "\~", "\=", "\+", "\^", "\%", "\$", "\/", "\\", "\'",'\"', "\."];
 
-    public function __construct ($url = null) {
+    public function __construct ($url = null,$timeout=3600) {
         if (is_null($url)) {
             $slim = \Slim\Slim::getInstance();
             $this->url = $slim->url;
         } else {
             $this->url = $url;
         }
-
         $this->url = trim($this->url);
-
-        $this->client = new GuzzleHttp\Client(['timeout'  => 3600]);
-
+        $this->client = new GuzzleHttp\Client(['timeout'  => $timeout]);
+        if(!isset($GLOBALS['_SESSION'])){
+            $GLOBALS['_SESSION']['proxy'] = null;
+        }
         // $this->checkProxy () ;
 
     }
@@ -66,7 +66,12 @@ class Downloader {
         } catch (\GuzzleHttp\Exception\BadResponseException $serverException) {
             return 'connection_error';
         }
-        $reallink = @$html->find('iframe',0)->src;
+        $reallink = $html->find('iframe', 0);
+        if($reallink) {
+            $reallink = $reallink->src;
+        } else {
+            $reallink = null;
+        }
         if($reallink) {
             try {
                 $html_str = $this->client->request("GET", $url, ['proxy'=>$_SESSION['proxy']]);
@@ -171,7 +176,7 @@ class Downloader {
                 'method'  => 'POST',
                 'header'  => 'Content-type: application/x-www-form-urlencoded',
                 'content' => $postdata,
-                'proxy'   => $_SESSION["proxy"]
+                // 'proxy'   => $_SESSION["proxy"]
             )
         );
         $context  = stream_context_create($opts);
@@ -205,10 +210,15 @@ class Downloader {
             mkdir(Config::app('webDirectory') . 'download/' , 0755, true);
         }
         $filename = hash('ripemd128', $this->url);
-        $founded_filename = glob(Config::app('webDirectory') . 'download/' . $filename."*")[0];
+        $founded_filename = glob(Config::app('webDirectory') . 'download/' . $filename."*");
+        if(count($founded_filename) > 0) {
+            $founded_filename = $founded_filename[0];
+        } else {
+            $founded_filename = null;
+        }
         if ($founded_filename) {
             $path = Config::app('webDirectory') . 'download/' . $founded_filename;
-            if (filesize($path) > 2500) {
+            if (filesize($path) > 50000) {
                 return $this->zipit($path);
             } else {
                 unlink($path);
@@ -222,7 +232,9 @@ class Downloader {
         if (strpos($url, 'http://libgen.io') !== false) {
             try {
                 $response = $this->client->request("GET", $url, ['save_to'=>$file, 'proxy'=>$_SESSION['proxy']]);
-                $original_filename = str_replace('"', '', end(explode('=',$response->getHeaders()['Content-Disposition'][0])));
+                $headers = $response->getHeaders();
+                $exploded_header_content_disposition = explode('=',$headers['Content-Disposition'][0]);
+                $original_filename = str_replace('"', '', end($exploded_header_content_disposition));
                 $extension = pathinfo($original_filename, PATHINFO_EXTENSION);
                 $new_path = $path.'.'.$extension;
                 rename($path, $new_path);
@@ -242,7 +254,7 @@ class Downloader {
                 CURLOPT_TIMEOUT        => 150,
                 CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/40.0.0.13',
                 CURLOPT_COOKIEFILE     => dirname ( __FILE__ ).'./cookie_file1.txt',
-                CURLOPT_PROXY          => $_SESSION["proxy"]
+                // CURLOPT_PROXY          => $_SESSION["proxy"]
             ]);
             $response = curl_exec($curl);
             $original_filename = urldecode(basename($url));
@@ -251,11 +263,11 @@ class Downloader {
             rename($path, $new_path);
             $path = $new_path;
         }
-        if ($response == false || $response != true || $response != 1) {
+        if ($response == false || $response == '' || $response == null) {
             unlink($path);
             return "not_found";
         }
-        if(filesize ($path) > 2500) {
+        if(filesize ($path) > 50000) {
             return $this->margeit($path);
         } else {
             unlink($path);
@@ -270,7 +282,7 @@ class Downloader {
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_POSTFIELDS, "captcha_code=".$data['captcha_code']);
         curl_setopt($curl, CURLOPT_COOKIEFILE, dirname ( __FILE__ ).'/cookie_file1.txt');
-        curl_setopt($curl, CURLOPT_PROXY, $_SESSION["proxy"]);
+        // curl_setopt($curl, CURLOPT_PROXY, $_SESSION["proxy"]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
         $response = curl_exec($curl);
@@ -284,11 +296,15 @@ class Downloader {
     private function zipit($file) {
         $pdf = Config::app('webDirectory').'download/' . basename($file);
         $filename = Config::app('webDirectory').'download/' . basename($file).'.zip';
+        $skiped_pdf = str_replace($this->skip, $this->replace, $pdf);
+        $skiped_filename = str_replace($this->skip, $this->replace, $filename);
         if(!file_exists($filename)) {
-            system("zip --junk-paths -P www.motarjeminiran.com " . str_replace($this->skip, $this->replace, $filename) . " ". str_replace($this->skip, $this->replace, $pdf));
-            ob_clean();
+            system("zip --junk-paths -P www.motarjeminiran.com " . $skiped_filename . " ". $skiped_pdf);
+            if (ob_get_length()){
+                ob_clean();
+            }
         }
-        return ['filename' => $filename, 'url' => $this->url];
+        return ['filename' => $filename, 'url' => $this->url, 'pdf' => $pdf];
     }
 
     private function margeit ($file) {
@@ -387,7 +403,7 @@ class Downloader {
             }
         }
         if ($zip_file_founded) {
-            return ['filename' => $zip_file, 'url' => $this->url];
+            return ['filename' => $zip_file, 'url' => $this->url, 'pdf' => $doc_file];
         } else {
             return $this->zipit($doc_file);
         }

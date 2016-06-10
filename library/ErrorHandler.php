@@ -45,8 +45,10 @@ function error_exception_handler($exception=null)
     $code = 503;
     $message = ERROR_STRING;
     $redirect = null;
-    http_response_code(503);
-    header('Content-Type:application/json; charset=utf-8');
+    if($ip != "From CLI") {
+      http_response_code(503);
+      header('Content-Type:application/json; charset=utf-8');      
+    }
     if(defined('DEBUG') && DEBUG)
     {
       echo json_encode(compact("body", "message", "status", "code","redirect"));
