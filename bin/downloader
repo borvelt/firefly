@@ -169,7 +169,7 @@ function bootstrap($last_book_id){
 		check_book_size($book_info, $book_path);
 		check_book_extension($book_info, $book_path);
 		check_book_zip_file($book_info, $book_path);
-		echo $book_info->md5 . "\n" . formatBytes(disk_free_space(__DIR__)) . "\n";
+		echo $book_info->md5 . "\n" . basename($book_path) . "\n" . formatBytes(disk_free_space(__DIR__)) . "\n";
 	}catch(Exception $e){
 		echo $e->getMessage() . '(File: '.$e->getFile().'-Line: ' . $e->getLine() . ')' . "\n";
 		interupted_downloads($last_book_id);
