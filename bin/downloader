@@ -46,7 +46,10 @@ function save_last_book_id($last_book_id){
 
 
 function get_last_book_id(){
-	$content = file_get_contents(file_name());
+	$file_name = file_name();
+	if(file_exists($file_name)){
+		$content = file_get_contents($file_name);
+	}
 	$content = trim($content);
 	$last_book_id = XORdecrypt($content);
 	if($last_book_id == 0){
