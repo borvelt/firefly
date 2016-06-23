@@ -69,7 +69,7 @@ class Downloader {
         $reallink = $html->find('iframe', 0);
         if($reallink) {
             $reallink = $reallink->src;
-            if(0 !== strpos($reallink, 'http://') || 0 !== strpos($reallink, 'https://')) {
+            if(0 !== strpos($reallink, 'http://')) {
                 if(substr($reallink,0 ,2) == '//') {
                     $reallink = substr($reallink, 2);
                     $reallink = 'http://' . $reallink;
