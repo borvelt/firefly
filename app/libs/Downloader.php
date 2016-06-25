@@ -18,6 +18,16 @@ class Downloader {
             $this->url = $url;
         }
         $this->url = trim($this->url);
+        if(0 !== strpos($this->url, 'http://')) {
+          if(0 !== strpos($this->url, 'www.')) {
+            $this->url = 'www.' . $this->url;
+          }
+          $this->url = 'http://' . $this->url;
+        } else if(7 !== strpos($this->url, 'www.')) {
+          $exploded_url = explode('http://', $this->url);
+          $link = end($exploded_url);
+          $this->url = 'http://www.' . $link;
+        }
         $this->client = new GuzzleHttp\Client(['timeout'  => $timeout]);
         if(!isset($GLOBALS['_SESSION'])){
             $GLOBALS['_SESSION']['proxy'] = null;
