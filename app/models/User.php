@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model as Model;
-use Codesleeve\Stapler\ORM\StaplerableInterface;
 use Codesleeve\Stapler\ORM\EloquentTrait;
+use Codesleeve\Stapler\ORM\StaplerableInterface;
+use Illuminate\Database\Eloquent\Model as Model;
 
 class User extends Model implements StaplerableInterface
 {
@@ -24,32 +24,29 @@ class User extends Model implements StaplerableInterface
         parent::__construct($attributes);
     }
     /*
-      @ Overloading save method for Stapler.
-    */
+    @ Overloading save method for Stapler.
+     */
     public function save(array $data = array())
     {
-        if (parent::save())
-        {
+        if (parent::save()) {
             $this->avatar_attachment->save();
             return true;
         }
         return false;
     }
-    public function authenticate ()
+    public function authenticate()
     {
         return $this->belongsTo('Authentication', 'authenticate');
     }
-    public function authorize ()
+    public function authorize()
     {
         return $this->belongsToMany('Authorization', 'user_authorization', 'user', 'authorization');
     }
-    public function avatar ($type = "thumbnail")
+    public function avatar($type = "thumbnail")
     {
-        if(is_array($type) && count($type))
-        {
+        if (is_array($type) && count($type)) {
             $return = [];
-            foreach($type as $typ)
-            {
+            foreach ($type as $typ) {
                 $return[] = $this->avatar_attachment->url($typ);
             }
             return $return;

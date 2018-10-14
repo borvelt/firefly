@@ -1,25 +1,23 @@
 <?php
 
-if(!defined('MCRYPT_RIJNDAEL_256'))
-{
-    define('MCRYPT_RIJNDAEL_256',0);
+if (!defined('MCRYPT_RIJNDAEL_256')) {
+    define('MCRYPT_RIJNDAEL_256', 0);
 }
 
-if(!defined('MCRYPT_MODE_CBC'))
-{
-    define('MCRYPT_MODE_CBC',0);
+if (!defined('MCRYPT_MODE_CBC')) {
+    define('MCRYPT_MODE_CBC', 0);
 }
 
-define ("GENERATE_NEW_TOKEN", 2675);
+define("GENERATE_NEW_TOKEN", 2675);
 
-define ("DEFAULT_ALLOWED_REQUEST_METHOD", "GET");
+define("DEFAULT_ALLOWED_REQUEST_METHOD", "GET");
 
-define ("UNDEFINED", null);
+define("UNDEFINED", null);
 
 class Config
 {
     private static $app = array
-    (
+        (
         'templates.path' => './app/view',
         'mode' => 'development',
         'debug' => false,
@@ -35,16 +33,16 @@ class Config
         'http.version' => '1.1',
         'language' => 'persian',
         'IpLocationApiAddress' => 'http://ip-api.com/json/',
-        'encryptKeySize' => 32,
-        'encryptSecretKey' => 'bc5b9275bd794ac47581114b66d14d81076',
+        'cipher' => 'aes-128-cbc',
+        'encryptSecretKey' => 'f080dd2e74286c45953d934380ebecbaf7708a9dd5580c1b70837106c5380915',
         'api_key_regenerate_time' => 60000,
         //CROSS DOMAIN REQUEST CONFIGURATION;
         'Cross-Domain-Request' => false,
-        'Access-Control-Allow-Origin' => 'http://localhost:9000',
-        'Access-Control-Allow-Methods'=>'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers'=>'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Token',
-        'Access-Control-Allow-Credentials'=>'true',
-        'JSON-Content-Type'=>'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin' => 'http://localhost:2000',
+        'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers' => 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Token',
+        'Access-Control-Allow-Credentials' => 'true',
+        'JSON-Content-Type' => 'application/json; charset=utf-8',
     );
 
     private static $database = [
@@ -53,32 +51,30 @@ class Config
         'database' => '',
         'username' => '',
         'password' => '',
-        'prefix'    => '',
-        'charset'   => "utf8",
-        'collation' => "utf8_unicode_ci"
+        'prefix' => '',
+        'charset' => "utf8",
+        'collation' => "utf8_unicode_ci",
     ];
 
     public static function app($key = null)
     {
         self::$app['view'] = new \JsonView();
-        self::$app['webDirectory'] = __DIR__.DIRECTORY_SEPARATOR.'../../web/';
-        self::$app['rootDirectory'] = __DIR__.DIRECTORY_SEPARATOR.'../../';
-        self::$app['uploadStorage'] = __DIR__.DIRECTORY_SEPARATOR.'../../web/uploads/';
-        self::$app['languageDirectory'] = __DIR__.DIRECTORY_SEPARATOR.'../languages/';
-        self::$app['rulesDirectory'] = __DIR__.DIRECTORY_SEPARATOR.'../rules/';
-        self::$app['seedsDirectory'] = __DIR__.DIRECTORY_SEPARATOR.'../seeds/';
-        self::$app['fakerAutoloader'] = __DIR__.DIRECTORY_SEPARATOR.'../../vendor/fzaninotto/faker/src/autoload.php';
-        if(!is_null($key))
-        {
+        self::$app['webDirectory'] = __DIR__ . DIRECTORY_SEPARATOR . '../../web/';
+        self::$app['rootDirectory'] = __DIR__ . DIRECTORY_SEPARATOR . '../../';
+        self::$app['uploadStorage'] = __DIR__ . DIRECTORY_SEPARATOR . '../../web/uploads/';
+        self::$app['languageDirectory'] = __DIR__ . DIRECTORY_SEPARATOR . '../languages/';
+        self::$app['rulesDirectory'] = __DIR__ . DIRECTORY_SEPARATOR . '../rules/';
+        self::$app['seedsDirectory'] = __DIR__ . DIRECTORY_SEPARATOR . '../seeds/';
+        self::$app['fakerAutoloader'] = __DIR__ . DIRECTORY_SEPARATOR . '../../vendor/fzaninotto/faker/src/autoload.php';
+        if (!is_null($key)) {
             return self::$app[$key];
         }
         return self::$app;
     }
     public static function database($key = null)
     {
-        self::$database = require __DIR__.DIRECTORY_SEPARATOR."Database.php";
-        if(!is_null($key))
-        {
+        self::$database = require __DIR__ . DIRECTORY_SEPARATOR . "Database.php";
+        if (!is_null($key)) {
             return self::$database[$key];
         }
         return self::$database;
