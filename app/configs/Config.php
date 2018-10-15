@@ -1,13 +1,5 @@
 <?php
 
-if (!defined('MCRYPT_RIJNDAEL_256')) {
-    define('MCRYPT_RIJNDAEL_256', 0);
-}
-
-if (!defined('MCRYPT_MODE_CBC')) {
-    define('MCRYPT_MODE_CBC', 0);
-}
-
 define("GENERATE_NEW_TOKEN", 2675);
 
 define("DEFAULT_ALLOWED_REQUEST_METHOD", "GET");
