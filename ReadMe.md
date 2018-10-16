@@ -189,6 +189,10 @@ return [
 
 note: you can make foreign keys and other staff in seeds function.
 
+### Validators
+
+Most respect/validators works for your project but if you need to create your own validator, make it like `Avatar` in `library/Validation/Avatar/`
+
 ## Test
 
 Sorry there is no unit test for this library but I have [postman_collection](./postman_collection.json) json requests to just test functionality.

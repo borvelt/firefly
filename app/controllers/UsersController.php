@@ -34,7 +34,7 @@ class UsersController
 
     public function register($slim, $validator, $translator)
     {
-        $posted_data = $slim->request->post();
+        $posted_data = array_merge($slim->request->post(), $_FILES);
         $validator->setRules('addUser')->setInputs($posted_data);
         if (!$validator->isPassed()) {
             $slim->responseBody = $validator->getMessages();

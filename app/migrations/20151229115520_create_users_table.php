@@ -19,8 +19,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->table_name, function ($table)
-        {
+        $this->schema->create($this->table_name, function ($table) {
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
             $table->string('name_family', 100);
@@ -31,10 +30,10 @@ class CreateUsersTable extends Migration
             $table->text('confirmation_key');
             $table->boolean('is_confirmed')->default(false);
             // Avatar
-            $table->string('avatar_file_name');
-            $table->string('avatar_file_size');
-            $table->string('avatar_content_type');
-            $table->timestamp('avatar_updated_at');
+            $table->string('avatar_attachment_file_name');
+            $table->string('avatar_attachment_file_size');
+            $table->string('avatar_attachment_content_type');
+            $table->timestamp('avatar_attachment_updated_at');
             // Timestamps
             $table->timestamps();
             $table->softDeletes();

@@ -2,7 +2,7 @@
 
 namespace Respect\Validation\Exceptions;
 
-class TricksImageException extends ValidationException
+class AvatarException extends ValidationException
 {
     public static $defaultTemplates = array(
         self::MODE_DEFAULT => array(
@@ -10,6 +10,6 @@ class TricksImageException extends ValidationException
         ),
         self::MODE_NEGATIVE => array(
             self::STANDARD => 'File data not need to send by policies',
-        )
+        ),
     );
 }
