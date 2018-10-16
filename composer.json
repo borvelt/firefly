@@ -1,6 +1,6 @@
 {
   "name": "name",
-  "description": "Create php mixin with eloquent and twig.",
+  "description": "php mixin framework with Slim, Eloquent and Twig.",
   "require": {
     "slim/slim": "2.*",
     "illuminate/database": "4.*",

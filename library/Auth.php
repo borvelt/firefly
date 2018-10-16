@@ -23,8 +23,6 @@ class Auth
             $slim->responseMessage = $translator->get('user_login_re_login');
             $slim->responseCode = 401;
             halt_app();
-//            $api_key = Authenticate::generateNewToken();
-            //            Authentication::create(['api_key'=>$api_key, 'user'=>end($checkApiKey)->id]);
         }
         Authorize::token();
         $permitted = Authorize::user($uri);

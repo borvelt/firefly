@@ -22,56 +22,6 @@ $slim->group('/users', 'Auth::check', function () use ($slim) {
     })->name('register');
 });
 
-$slim->GET('/download/:uid', 'Downloader::limitByLink', function ($uid) use ($slim) {
-    $slim->uid = $uid;
-    Controller::call('DownloadBookController', 'downloadBook', 'Translator');
-    $slim->render([]);
-})->name('downloadBookByUID');
-
-$slim->group('/books', 'Auth::check', function () use ($slim) {
-    $slim->GET('/by-link', function () use ($slim) {
-        Controller::call('BooksController', 'getBookByLink');
-        $slim->render([]);
-    })->name('getBookByLink');
-
-    $slim->GET('/downloaded', function () use ($slim) {
-        Controller::call('BooksController', 'downloadedBooks');
-        $slim->render([]);
-    })->name('getDownloaded');
-
-    $slim->GET('/reported', function () use ($slim) {
-        Controller::call('BooksController', 'reportedBooks');
-        $slim->render([]);
-    })->name('getReport');
-
-    $slim->POST('/report', function () use ($slim) {
-        Controller::call('BooksController', 'reportBook');
-        $slim->render([]);
-    })->name('reportBook');
-
-    $slim->POST('/block', function () use ($slim) {
-        Controller::call('BooksController', 'blockBook');
-        $slim->render([]);
-    })->name('blockBook');
-
-    $slim->POST('/by-link', function () use ($slim) {
-        Controller::call('BooksController', 'getBookByLinkNeedCaptcha');
-        $slim->render([]);
-    })->name('getBookByLinkNeedCaptcha');
-
-    $slim->POST('/search', function () use ($slim) {
-        Controller::call('BooksController', 'searchBook');
-        $slim->render([]);
-    })->name('searchBook');
-
-});
-
-$slim->GET('/covers/:cover_md5', function ($cover_md5) use ($slim) {
-    $slim->cover_md5 = $cover_md5;
-    Controller::call('BooksController', 'getCover');
-    $slim->render([]);
-})->name('getCovers');
-
 $slim->run();
 
 $GLOBALS['microtime_end'] = microtime(true);

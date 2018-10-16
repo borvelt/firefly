@@ -10,4 +10,5 @@
 *.DS_Store
 /composer.phar
 app/configs/Database.php
+/.vscode
 app/libs/cookie_file1.txt

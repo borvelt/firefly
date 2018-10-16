@@ -16,9 +16,9 @@ Firefly is a mixin framework, this means every part of framework, work with stro
 
 - [Pimple](https://github.com/silexphp/Pimple) a dependency injector, thanks for [Fabien Potencier](http://fabien.potencier.org/)
 
-- [Respect/Validation](https://github.com/Respect/Validation) is one hundred percent is most power full php validator.
+- [Respect/Validation](https://github.com/Respect/Validation) is one hundred percent most power full php validator.
 
-- [Staple](https://github.com/CodeSleeve/stapler) used for database models that contain attachments, this library will connect to ORM and handle model attachments.
+- [Stapler](https://github.com/CodeSleeve/stapler) used for database models that contain attachments, this library will connect to ORM and handle model attachments.
 
 - [Faker](https://github.com/fzaninotto/Faker) will produce Fake data to seed database.
 
@@ -55,7 +55,35 @@ composer install
 
 - **web**: You should place your assets, views, and your uploads and attachments should be here.
 
+### Configurations
+
+`app/configs/Bootstrap.php` will config whole project, twig, stapler, eloquent. Your job is done with this.
+
+`app/configs/Config.php` this file contain views, controllers and other parts directory address and other firefly configurations. In most cases you don't need this.
+
+`app/configs/Database.php` Set your database configurations here.
+
+### Controllers
+
+We should call controllers from slim request handler. Please create your application controllers under `app/controllers`
+
+### Languages
+
+Put your languages array `key=>value` separate by files, in `app/languages`
+
+### Rules
+
+Create validation rules in `app/rules`, name of file will use in your application.
+
+### Models, Migrations and Seeding
+
+Migration files will generate in `app/migrations`
+
+Create your application model files in `app/models`
+
 ## Usage
+
+### Start
 
 You can serve this project with apache or every web server you want. Starting point is index.php in root directory.
 You can simply run php dev server:
@@ -64,10 +92,65 @@ You can simply run php dev server:
 php -S localhost:8000
 ```
 
-### Configurations
+### Request and Response
 
-`app/configs/Bootstrap.php` will config whole project, twig, stapler, eloquent. Your job is done with this.
+Open index.php and create your slim request handler. Example:
 
-`app/configs/Config.php` this file contain views, controllers and other parts directory address and other firefly configurations. In most cases you don't need this.
+```php
+$slim->group('/users', 'Auth::check', function () use ($slim) {
+    $slim->POST('/login', function () use ($slim) {
+        Controller::call('UsersController', 'login', 'Validation', 'Translator');
+        $slim->render([]);
+    })->name('login');
+});
+```
 
-`app/configs/Database.php` Set your database configurations here.
+Please see `UsersController` in `app/Controllers` and trace codes.
+
+### Generate and run Migrations
+
+To create migration file, run this command:
+
+```bash
+./bin/phpmig generate # generate new migration file under app/migrations path
+./bin/phpmig migrate
+```
+
+### Seeding
+
+seed your database with this command:
+
+```bash
+./bin seeder all
+# you can enter your seed file instead of `all`
+```
+
+Seeding has some difference:
+
+```php
+# app/seeds/all.php
+return [
+    'model' => null,
+    'dependencies' => ['User','Authorization'],
+    'seeds' => function() {
+        User::find(1)->authorize()->attach(range(1,10));
+        return [];
+    },
+];
+```
+
+- `model`: for which model do you want to seed.
+
+- `dependencies`: seed files that should called before this seed call.
+
+- `seed`: this will return array of data that will insert.
+
+note: you can make foreign keys and other staff in seeds function.
+
+## Test
+
+Sorry there is no unit test for this library but I have [postman_collection](./postman_collection.json) json requests to just test functionality.
+
+## License
+
+this project is under [_MIT_](./LICENSE) license
