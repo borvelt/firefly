@@ -22,6 +22,8 @@ Firefly is a mixin framework, this means every part of framework, work with stro
 
 - [Faker](https://github.com/fzaninotto/Faker) will produce Fake data to seed database.
 
+- Authentication and Authorization, I've made a simple Authentication and Authorization solution.
+
 ## Requirements
 
 This framework need [php5.6](http://php.net/) or later and [composer](https://getcomposer.org/).
@@ -117,6 +119,16 @@ $slim->group('/books', 'Auth::check', function () use ($slim) {
 
 Please see `UsersController` in `app/Controllers` and trace codes.
 
+### Login and Registration
+
+#### Login
+
+When user authentication done on `users/login`, server will send an `api-key` in headers, in all other requests you should send this `api-key` to server,(for routes that guarded with `Auth::check` middleware.) in header same key name.
+
+#### Register
+
+Registration will done after user input validation was successful. check `app/rules/addUsers.php` to see input validation rules.
+
 ### Generate and run Migrations
 
 To create migration file, run this command:
@@ -125,6 +137,10 @@ To create migration file, run this command:
 ./bin/phpmig generate # generate new migration file under app/migrations path
 ./bin/phpmig migrate
 ```
+
+### Models
+
+You should create your application models in `app/modes` directory. See `app/models/Model.php.dist` to find out how to create Model class.
 
 ### Seeding
 
@@ -141,9 +157,9 @@ Seeding has some difference:
 # app/seeds/all.php
 return [
     'model' => null,
-    'dependencies' => ['User','Authorization'],
+    'dependencies' => ['User','Authorization'], // Just put your seeders filename right here.
     'seeds' => function() {
-        User::find(1)->authorize()->attach(range(1,10));
+        User::find(1)->authorize()->attach(1);
         return [];
     },
 ];
@@ -154,6 +170,22 @@ return [
 - `dependencies`: seed files that should called before this seed call.
 
 - `seed`: this will return array of data that will insert.
+
+Authorization seeder is like this:
+
+```php
+return [
+    'model' => 'Authorization',
+    'dependencies' => [], // Authorization seeder is not depend on any models.
+    'seeds' => function () {
+        // You can make your foreign keys here. like app/seeds/all.php
+        $seeds = [];
+        $seeds[] = ['group' => 'books', 'uri_pattern' => '/books/search|GET'];
+        $seeds[] = ['group' => 'books', 'uri_pattern' => '/books/report|POST'];
+        return $seeds;
+    },
+];
+```
 
 note: you can make foreign keys and other staff in seeds function.
 
