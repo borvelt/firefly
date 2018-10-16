@@ -4,6 +4,7 @@
 /web/system/
 /web/uploads/
 /app/cache/
+/cache
 /bin/.db
 /bin/.int
 *.log

@@ -1,4 +1,11 @@
 <?php
+if (!defined('MCRYPT_RIJNDAEL_256')) {
+    define('MCRYPT_RIJNDAEL_256', 0);
+}
+
+if (!defined('MCRYPT_MODE_CBC')) {
+    define('MCRYPT_MODE_CBC', 0);
+}
 
 define("GENERATE_NEW_TOKEN", 2675);
 
@@ -10,7 +17,7 @@ class Config
 {
     private static $app = array
         (
-        'templates.path' => './app/view',
+        'templates.path' => './app/views',
         'mode' => 'development',
         'debug' => false,
         'log.level' => \Slim\Log::ERROR,
@@ -23,7 +30,7 @@ class Config
         'cookies.cipher' => MCRYPT_RIJNDAEL_256,
         'cookies.cipher_mode' => MCRYPT_MODE_CBC,
         'http.version' => '1.1',
-        'language' => 'persian',
+        'language' => 'english',
         'IpLocationApiAddress' => 'http://ip-api.com/json/',
         'cipher' => 'aes-128-cbc',
         'encryptSecretKey' => 'f080dd2e74286c45953d934380ebecbaf7708a9dd5580c1b70837106c5380915',

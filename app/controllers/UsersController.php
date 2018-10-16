@@ -29,7 +29,7 @@ class UsersController
         $authentication->user = $user->id;
         $authentication->save();
         Authorize::token();
-        $slim->responseMessage = $translator->get('userـloginـsuccess');
+        $slim->responseMessage = $translator->get('user_login_success');
     }
 
     public function register($slim, $validator, $translator)
@@ -47,7 +47,7 @@ class UsersController
         {
             if ($user->save()) {
                 $slim->responseBody = compact("user");
-                $slim->responseMessage = $translator->get('userـcreateـok');
+                $slim->responseMessage = $translator->get('user_create_ok');
             }
         } catch (Exception $e) {
             $slim->responseMessage = $e->getMessage();

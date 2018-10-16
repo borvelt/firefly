@@ -1,6 +1,5 @@
 <?php
 session_start();
-$_SESSION["proxy"] = null;
 set_time_limit(0);
 $GLOBALS['microtime_start'] = microtime(true);
 
@@ -20,6 +19,19 @@ $slim->group('/users', 'Auth::check', function () use ($slim) {
         Controller::call('UsersController', 'register', 'Validation', 'Translator');
         $slim->render([]);
     })->name('register');
+});
+
+$slim->group('/books', 'Auth::check', function () use ($slim) {
+    $slim->POST('/report', function () use ($slim) {
+        Controller::call('BooksController', 'reportBook');
+        $slim->render([]);
+    })->name('reportBook');
+
+    $slim->GET('/search', 'Auth::check', function () use ($slim) {
+        Controller::call('BooksController', 'searchBook');
+        $slim->view(new TwigView());
+        $slim->render('search.twig', $slim->responseBody);
+    })->name('searchBook');
 });
 
 $slim->run();

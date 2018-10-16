@@ -1,6 +1,6 @@
 # Firefly mixin PHP Framework
 
-![Firefly Image](./_firefly.png "Firefly")
+![Firefly Image](./firefly.png "Firefly")
 
 _Ridiculously fast and exceedingly scalable framework that you can use it as multipurpose framework._
 
@@ -94,15 +94,25 @@ php -S localhost:8000
 
 ### Request and Response
 
+By default Response configured to respond json you can change it in `app/config/config.php` and change this line: `self::$app['view'] = new \JsonView();` to every View class you want, another possible view instance for this framework is `TwigView`.
+
 Open index.php and create your slim request handler. Example:
 
 ```php
 $slim->group('/users', 'Auth::check', function () use ($slim) {
     $slim->POST('/login', function () use ($slim) {
         Controller::call('UsersController', 'login', 'Validation', 'Translator');
-        $slim->render([]);
+        $slim->render([]); #it's necessary for jsonView.
     })->name('login');
 });
+$slim->group('/books', 'Auth::check', function () use ($slim) {
+    $slim->GET('/search', 'Auth::check', function () use ($slim) {
+        Controller::call('BooksController', 'searchBook');
+        $slim->view(new TwigView()); # create TwigView instance.
+        # $slim->responseBody has been setted in controller.
+        $slim->render('search.twig', $slim->responseBody);
+    })->name('searchBook');
+})
 ```
 
 Please see `UsersController` in `app/Controllers` and trace codes.
